@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import Dashboard from '../components/Dashboard';
+import DashboardContent from '../components/Dash'; // Renamed to avoid naming conflict
 import KYCVerification from '../components/KYCVerification';
 import DepositWithdraw from '../components/DepositWithdraw';
 import TransactionHistory from '../components/TransactionHistory';
@@ -10,6 +10,7 @@ import UserSettings from '../components/UserSettings';
 
 function Dash() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState({
     id: 'CRY789456',
     name: 'Alex Johnson',
@@ -21,7 +22,7 @@ function Dash() {
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard user={user} />;
+        return <DashboardContent user={user} />;
       case 'kyc':
         return <KYCVerification user={user} setUser={setUser} />;
       case 'deposit-withdraw':
@@ -33,19 +34,33 @@ function Dash() {
       case 'settings':
         return <UserSettings user={user} setUser={setUser} />;
       default:
-        return <Dashboard user={user} />;
+        return <DashboardContent user={user} />;
     }
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} user={user} setUser={setUser} />
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 overflow-hidden">
+      <Sidebar
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        user={user}
+        setUser={setUser}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header user={user} />
-        <main className="flex-1 overflow-y-auto p-6">
+        <Header user={user} setSidebarOpen={setSidebarOpen} />
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
           {renderCurrentPage()}
         </main>
       </div>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

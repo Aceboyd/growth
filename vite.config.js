@@ -7,14 +7,5 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
-  server: {
-       port: 3000, // Or 5173, depending on your setup
-       mimeTypes: {
-         'text/javascript': ['js', 'jsx'],
-       },
-     },
-     build: {
-       outDir: 'dist',
-     },
 })
 

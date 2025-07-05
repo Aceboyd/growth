@@ -78,9 +78,9 @@ const KYCVerification = ({ user, setUser }) => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white mb-4">Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Personal Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">First Name</label>
                 <input
@@ -134,8 +134,8 @@ const KYCVerification = ({ user, setUser }) => {
         );
       case 2:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white mb-4">Address Verification</h3>
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Address Verification</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">Street Address</label>
@@ -148,7 +148,7 @@ const KYCVerification = ({ user, setUser }) => {
                   placeholder="Enter your street address"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">City</label>
                   <input
@@ -188,9 +188,9 @@ const KYCVerification = ({ user, setUser }) => {
         );
       case 3:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white mb-4">Document Upload</h3>
-            <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Document Upload</h3>
+            <div className="space-y-4 sm:space-y-6">
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">Document Type</label>
                 <select
@@ -205,12 +205,12 @@ const KYCVerification = ({ user, setUser }) => {
                 </select>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Front of ID</label>
-                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-400 text-sm mb-2">Upload front of ID</p>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-6 text-center hover:border-blue-500 transition-colors">
+                    <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-400 text-xs sm:text-sm mb-2">Upload front of ID</p>
                     <input
                       type="file"
                       name="idFront"
@@ -221,7 +221,7 @@ const KYCVerification = ({ user, setUser }) => {
                     />
                     <label
                       htmlFor="idFront"
-                      className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-white text-sm transition-colors"
+                      className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-white text-xs sm:text-sm transition-colors"
                     >
                       Choose File
                     </label>
@@ -233,9 +233,9 @@ const KYCVerification = ({ user, setUser }) => {
                 
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Back of ID</label>
-                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-400 text-sm mb-2">Upload back of ID</p>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-6 text-center hover:border-blue-500 transition-colors">
+                    <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-400 text-xs sm:text-sm mb-2">Upload back of ID</p>
                     <input
                       type="file"
                       name="idBack"
@@ -246,7 +246,7 @@ const KYCVerification = ({ user, setUser }) => {
                     />
                     <label
                       htmlFor="idBack"
-                      className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-white text-sm transition-colors"
+                      className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-white text-xs sm:text-sm transition-colors"
                     >
                       Choose File
                     </label>
@@ -259,9 +259,9 @@ const KYCVerification = ({ user, setUser }) => {
               
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">Selfie with ID</label>
-                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm mb-2">Upload a selfie holding your ID</p>
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-6 text-center hover:border-blue-500 transition-colors">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-400 text-xs sm:text-sm mb-2">Upload a selfie holding your ID</p>
                   <input
                     type="file"
                     name="selfie"
@@ -272,7 +272,7 @@ const KYCVerification = ({ user, setUser }) => {
                   />
                   <label
                     htmlFor="selfie"
-                    className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-white text-sm transition-colors"
+                    className="cursor-pointer bg-blue-500 hover:bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-white text-xs sm:text-sm transition-colors"
                   >
                     Choose File
                   </label>
@@ -286,12 +286,12 @@ const KYCVerification = ({ user, setUser }) => {
         );
       case 4:
         return (
-          <div className="text-center space-y-6">
-            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle className="w-10 h-10 text-green-400" />
+          <div className="text-center space-y-4 sm:space-y-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white">Verification Complete!</h3>
-            <p className="text-gray-300 max-w-md mx-auto">
+            <h3 className="text-xl sm:text-2xl font-bold text-white">Verification Complete!</h3>
+            <p className="text-gray-300 max-w-md mx-auto text-sm sm:text-base">
               Your KYC verification has been successfully completed. You now have full access to all platform features.
             </p>
             <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
@@ -309,12 +309,12 @@ const KYCVerification = ({ user, setUser }) => {
   if (user.kycStatus === 'verified' && currentStep !== 4) {
     return (
       <div className="max-w-2xl mx-auto">
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-8 text-center">
-          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-400" />
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 sm:p-8 text-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-4">KYC Already Verified</h2>
-          <p className="text-gray-300 mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">KYC Already Verified</h2>
+          <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
             Your account has already been verified. You have full access to all platform features.
           </p>
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
@@ -329,26 +329,26 @@ const KYCVerification = ({ user, setUser }) => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">KYC Verification</h2>
-          <p className="text-gray-300">Complete your identity verification to access all features</p>
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-8">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">KYC Verification</h2>
+          <p className="text-gray-300 text-sm sm:text-base">Complete your identity verification to access all features</p>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step) => {
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 overflow-x-auto">
+            {steps.map((step, index) => {
               const Icon = step.icon;
               return (
-                <div key={step.id} className="flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                <div key={step.id} className="flex items-center min-w-0">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
                     currentStep >= step.id ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'
                   }`}>
-                    {currentStep > step.id ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                    {currentStep > step.id ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
-                  {step.id < steps.length && (
-                    <div className={`w-20 h-0.5 ml-2 ${
+                  {index < steps.length - 1 && (
+                    <div className={`w-8 sm:w-20 h-0.5 ml-2 ${
                       currentStep > step.id ? 'bg-blue-500' : 'bg-gray-700'
                     }`}></div>
                   )}
@@ -356,10 +356,10 @@ const KYCVerification = ({ user, setUser }) => {
               );
             })}
           </div>
-          <div className="flex justify-between">
+          <div className="grid grid-cols-4 gap-2">
             {steps.map((step) => (
               <div key={step.id} className="text-center">
-                <p className={`text-sm font-medium ${
+                <p className={`text-xs sm:text-sm font-medium ${
                   currentStep >= step.id ? 'text-blue-400' : 'text-gray-400'
                 }`}>
                   {step.title}
@@ -370,23 +370,23 @@ const KYCVerification = ({ user, setUser }) => {
         </div>
 
         {/* Step Content */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           {renderStepContent()}
         </div>
 
         {/* Navigation Buttons */}
         {currentStep < 4 && (
-          <div className="flex justify-between">
+          <div className="flex justify-between space-x-4">
             <button
               onClick={handlePrevious}
               disabled={currentStep === 1}
-              className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 sm:px-6 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
             >
               Previous
             </button>
             <button
               onClick={currentStep === 3 ? handleSubmit : handleNext}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all"
+              className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all text-sm sm:text-base"
             >
               {currentStep === 3 ? 'Submit for Verification' : 'Next'}
             </button>

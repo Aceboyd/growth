@@ -55,10 +55,8 @@ const UserSettings = ({ user, setUser }) => {
 
   const handleSave = async () => {
     setSaving(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Update user data
     setUser(prev => ({
       ...prev,
       name: formData.name,
@@ -74,26 +72,26 @@ const UserSettings = ({ user, setUser }) => {
     switch (activeTab) {
       case 'profile':
         return (
-          <div className="space-y-6">
-            <div className="flex items-center space-x-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center space-x-4 sm:space-x-6 flex-col sm:flex-row">
               <div className="relative">
                 <img
                   src={user.avatar}
                   alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
                 />
-                <button className="absolute bottom-0 right-0 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-blue-600 transition-colors">
+                <button className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-blue-600 transition-colors">
                   <User className="w-3 h-3" />
                 </button>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-white">{user.name}</h3>
-                <p className="text-gray-400">User ID: {user.id}</p>
+              <div className="text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-bold text-white">{user.name}</h3>
+                <p className="text-gray-400 text-sm">User ID: {user.id}</p>
                 <p className="text-green-400 text-sm">KYC {user.kycStatus}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">Full Name</label>
                 <input
@@ -101,7 +99,7 @@ const UserSettings = ({ user, setUser }) => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -111,7 +109,7 @@ const UserSettings = ({ user, setUser }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -121,7 +119,7 @@ const UserSettings = ({ user, setUser }) => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -130,7 +128,7 @@ const UserSettings = ({ user, setUser }) => {
                   type="text"
                   value={user.id}
                   disabled
-                  className="w-full bg-gray-700/30 border border-gray-600 rounded-lg px-4 py-2 text-gray-400 cursor-not-allowed"
+                  className="w-full bg-gray-700/30 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-gray-400 cursor-not-allowed text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -139,19 +137,19 @@ const UserSettings = ({ user, setUser }) => {
 
       case 'security':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Shield className="w-4 h-4 text-blue-400" />
-                <span className="text-blue-400 font-medium">Security Status</span>
+                <span className="text-blue-400 font-medium text-sm sm:text-base">Security Status</span>
               </div>
-              <p className="text-blue-300 text-sm">
+              <p className="text-blue-300 text-xs sm:text-sm">
                 Your account is secured with two-factor authentication and KYC verification.
               </p>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Change Password</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Change Password</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Current Password</label>
@@ -161,7 +159,7 @@ const UserSettings = ({ user, setUser }) => {
                       name="currentPassword"
                       value={formData.currentPassword}
                       onChange={handleInputChange}
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 pr-12 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 pr-10 sm:px-4 sm:py-2 sm:pr-12 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                     />
                     <button
                       type="button"
@@ -179,7 +177,7 @@ const UserSettings = ({ user, setUser }) => {
                     name="newPassword"
                     value={formData.newPassword}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   />
                 </div>
                 <div>
@@ -189,26 +187,26 @@ const UserSettings = ({ user, setUser }) => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Two-Factor Authentication</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Two-Factor Authentication</h3>
               <div className="bg-gray-700/30 rounded-lg p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-col sm:flex-row space-y-3 sm:space-y-0">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Smartphone className="w-5 h-5 text-green-400" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                     </div>
-                    <div>
-                      <p className="text-white font-medium">Authenticator App</p>
-                      <p className="text-gray-400 text-sm">Enabled</p>
+                    <div className="text-center sm:text-left">
+                      <p className="text-white font-medium text-sm sm:text-base">Authenticator App</p>
+                      <p className="text-gray-400 text-xs sm:text-sm">Enabled</p>
                     </div>
                   </div>
-                  <button className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                  <button className="px-3 py-2 sm:px-4 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm">
                     Disable
                   </button>
                 </div>
@@ -216,7 +214,7 @@ const UserSettings = ({ user, setUser }) => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Login History</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Login History</h3>
               <div className="space-y-2">
                 {[
                   { location: 'New York, US', time: '2024-01-15 14:30', device: 'Chrome on Windows' },
@@ -224,13 +222,13 @@ const UserSettings = ({ user, setUser }) => {
                   { location: 'New York, US', time: '2024-01-13 16:45', device: 'Firefox on macOS' },
                 ].map((login, index) => (
                   <div key={index} className="bg-gray-700/30 rounded-lg p-3">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-white font-medium">{login.location}</p>
-                        <p className="text-gray-400 text-sm">{login.device}</p>
+                    <div className="flex justify-between items-center flex-col sm:flex-row space-y-2 sm:space-y-0">
+                      <div className="text-center sm:text-left">
+                        <p className="text-white font-medium text-sm">{login.location}</p>
+                        <p className="text-gray-400 text-xs">{login.device}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-gray-400 text-sm">{login.time}</p>
+                      <div className="text-center sm:text-right">
+                        <p className="text-gray-400 text-xs">{login.time}</p>
                       </div>
                     </div>
                   </div>
@@ -242,17 +240,17 @@ const UserSettings = ({ user, setUser }) => {
 
       case 'notifications':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Notification Preferences</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Notification Preferences</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-blue-400" />
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                     <div>
-                      <p className="text-white font-medium">Email Notifications</p>
-                      <p className="text-gray-400 text-sm">Receive notifications via email</p>
+                      <p className="text-white font-medium text-sm sm:text-base">Email Notifications</p>
+                      <p className="text-gray-400 text-xs sm:text-sm">Receive notifications via email</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -263,16 +261,16 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-3">
-                    <Bell className="w-5 h-5 text-purple-400" />
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                     <div>
-                      <p className="text-white font-medium">Push Notifications</p>
-                      <p className="text-gray-400 text-sm">Receive push notifications in browser</p>
+                      <p className="text-white font-medium text-sm sm:text-base">Push Notifications</p>
+                      <p className="text-gray-400 text-xs sm:text-sm">Receive push notifications in browser</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -283,16 +281,16 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-3">
-                    <Smartphone className="w-5 h-5 text-green-400" />
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                     <div>
-                      <p className="text-white font-medium">SMS Notifications</p>
-                      <p className="text-gray-400 text-sm">Receive notifications via SMS</p>
+                      <p className="text-white font-medium text-sm sm:text-base">SMS Notifications</p>
+                      <p className="text-gray-400 text-xs sm:text-sm">Receive notifications via SMS</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -303,20 +301,20 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Alert Types</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Alert Types</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
                   <div>
-                    <p className="text-white font-medium">Trading Alerts</p>
-                    <p className="text-gray-400 text-sm">Price alerts and trading notifications</p>
+                    <p className="text-white font-medium text-sm sm:text-base">Trading Alerts</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">Price alerts and trading notifications</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -326,14 +324,14 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
                   <div>
-                    <p className="text-white font-medium">Market News</p>
-                    <p className="text-gray-400 text-sm">Market updates and news</p>
+                    <p className="text-white font-medium text-sm sm:text-base">Market News</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">Market updates and news</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -343,7 +341,7 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
@@ -353,17 +351,17 @@ const UserSettings = ({ user, setUser }) => {
 
       case 'preferences':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Display Preferences</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Display Preferences</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-4">
-                  <div className="flex items-center space-x-3">
-                    <Moon className="w-5 h-5 text-blue-400" />
+                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                     <div>
-                      <p className="text-white font-medium">Dark Mode</p>
-                      <p className="text-gray-400 text-sm">Use dark theme across the platform</p>
+                      <p className="text-white font-medium text-sm sm:text-base">Dark Mode</p>
+                      <p className="text-gray-400 text-xs sm:text-sm">Use dark theme across the platform</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -374,23 +372,23 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Regional Settings</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Regional Settings</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Language</label>
                   <select
                     name="language"
                     value={formData.language}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   >
                     <option value="en">English</option>
                     <option value="es">Spanish</option>
@@ -408,7 +406,7 @@ const UserSettings = ({ user, setUser }) => {
                     name="timezone"
                     value={formData.timezone}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   >
                     <option value="UTC-12">UTC-12</option>
                     <option value="UTC-11">UTC-11</option>
@@ -448,27 +446,27 @@ const UserSettings = ({ user, setUser }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Settings</h2>
-            <p className="text-gray-300">Manage your account preferences and security</p>
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
+        <div className="flex items-center justify-between flex-col sm:flex-row space-y-3 sm:space-y-0">
+          <div className="text-center sm:text-left">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Settings</h2>
+            <p className="text-gray-300 text-sm sm:text-base">Manage your account preferences and security</p>
           </div>
           {saved && (
             <div className="flex items-center space-x-2 text-green-400">
-              <CheckCircle className="w-5 h-5" />
-              <span className="text-sm">Settings saved successfully</span>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-xs sm:text-sm">Settings saved successfully</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
             <nav className="space-y-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -476,13 +474,13 @@ const UserSettings = ({ user, setUser }) => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-4 sm:py-3 rounded-lg transition-colors text-sm sm:text-base ${
                       activeTab === tab.id
                         ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-500/30 text-blue-400'
                         : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span className="font-medium">{tab.label}</span>
                   </button>
                 );
@@ -493,15 +491,15 @@ const UserSettings = ({ user, setUser }) => {
 
         {/* Settings Content */}
         <div className="lg:col-span-3">
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
             {renderTabContent()}
             
             {/* Save Button */}
-            <div className="mt-8 flex justify-end">
+            <div className="mt-6 sm:mt-8 flex justify-end">
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-all"
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all text-sm sm:text-base"
               >
                 {saving ? (
                   <>
