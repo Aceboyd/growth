@@ -175,17 +175,6 @@ const Navigation = () => {
             >
               Security
             </a>
-            <a 
-              href="#contact" 
-              onClick={(e) => handleNavClick(e, 'contact')}
-              className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white/90 hover:bg-white/10'
-              }`}
-            >
-              Contact Us
-            </a>
             <Link 
               to="/signup" 
               className={`block px-4 py-3 text-lg font-medium rounded-md mt-3 transition-all duration-300 ${

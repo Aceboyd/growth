@@ -6,8 +6,8 @@ import InvestmentTypes from '../components/InvestmentTypes';
 import SecuritySection from '../components/SecuritySection';
 import HowItWorks from '../components/HowItWorks';
 import AboutUs from '../components/AboutUs';
+import CertificatesSection from '../components/CertificatesSection';
 import FAQSection from '../components/FAQSection';
-import PaymentMethods from '../components/PaymentMethods';
 import Footer from '../components/Footer';
 
 const LandingPage = () => {
@@ -20,8 +20,8 @@ const LandingPage = () => {
       <SecuritySection />
       <HowItWorks />
       <AboutUs />
+      <CertificatesSection />
       <FAQSection />
-      <PaymentMethods />
       <Footer />
     </div>
   );
