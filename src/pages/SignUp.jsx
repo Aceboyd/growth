@@ -13,20 +13,35 @@ const SignUp = () => {
     confirmPassword: '',
     investmentGoal: '',
     riskTolerance: '',
-    agreeToTerms: false
+    accountType: '',
+    trades: [],
+    agreeToTerms: false,
   });
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? e.target.checked : value
+      [name]: type === 'checkbox' ? e.target.checked : value,
     }));
+  };
+
+  const handleTradeChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => {
+      const trades = checked
+        ? [...prev.trades, value]
+        : prev.trades.filter((t) => t !== value);
+      return { ...prev, trades };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
+    if (formData.trades.length < 3) {
+      alert('Please select at least three trades.');
+      return;
+    }
     console.log('Form submitted:', formData);
   };
 
@@ -59,7 +74,7 @@ const SignUp = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   placeholder="John"
                 />
               </div>
@@ -71,7 +86,7 @@ const SignUp = () => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   placeholder="Doe"
                 />
               </div>
@@ -86,7 +101,7 @@ const SignUp = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 placeholder="john@example.com"
               />
             </div>
@@ -101,13 +116,13 @@ const SignUp = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 pr-12"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   placeholder="Create a strong password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -124,13 +139,13 @@ const SignUp = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 pr-12"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -145,7 +160,7 @@ const SignUp = () => {
                 value={formData.investmentGoal}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="">Select your primary goal</option>
                 <option value="retirement">Retirement Planning</option>
@@ -164,7 +179,7 @@ const SignUp = () => {
                 value={formData.riskTolerance}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="">Select your risk tolerance</option>
                 <option value="conservative">Conservative - Low Risk</option>
@@ -173,7 +188,44 @@ const SignUp = () => {
               </select>
             </div>
 
-            {/* Terms and Conditions */}
+            {/* Account Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+              <select
+                name="accountType"
+                value={formData.accountType}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              >
+                <option value="">Choose account type</option>
+                <option value="starter">Starter Plan</option>
+                <option value="silver">Silver Plan</option>
+                <option value="gold">Gold Plan</option>
+              </select>
+            </div>
+
+            {/* Choose Trades */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Choose Trades</label>
+              <p className="text-sm text-red-500 mb-2">Select at least three trades from the list.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {['Crypto', 'CFD', 'Crude', 'FX', 'Stock', 'Gold'].map((trade) => (
+                  <label key={trade} className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      value={trade}
+                      checked={formData.trades.includes(trade)}
+                      onChange={handleTradeChange}
+                      className="h-4 w-4 text-emerald-600 border-gray-300 rounded mr-2"
+                    />
+                    <span className="text-gray-700">{trade}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Terms */}
             <div className="flex items-start">
               <input
                 type="checkbox"
@@ -185,13 +237,12 @@ const SignUp = () => {
               />
               <label className="ml-3 text-sm text-gray-700">
                 I agree to the{' '}
-                <a href="#" className="text-emerald-600 hover:text-emerald-700">Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className="text-emerald-600 hover:text-emerald-700">Privacy Policy</a>
+                <a href="#" className="text-emerald-600 hover:text-emerald-700">Terms of Service</a> and{' '}
+                <a href="#" className="text-emerald-600 hover:text-emerald-700">Privacy Policy</a>.
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
@@ -212,7 +263,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        {/* Security Notice */}
+        {/* Security */}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>🔒 Your information is encrypted and secure</p>
           <p>SIPC insured up to $500,000</p>

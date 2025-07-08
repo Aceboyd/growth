@@ -16,14 +16,13 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Smooth scroll function
   const handleNavClick = (e, id) => {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsMenuOpen(false); // Close mobile menu after clicking
+    setIsMenuOpen(false);
   };
 
   return (
@@ -46,78 +45,41 @@ const Navigation = () => {
               love
             </span>
           </div>
-          
+
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a 
-              href="#home" 
-              onClick={(e) => handleNavClick(e, 'home')}
-              className={`transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:text-gray-900' 
-                  : 'text-white/90 hover:text-white'
-              }`}
-            >
-              Home
-            </a>
-            <a 
-              href="#about-us" 
-              onClick={(e) => handleNavClick(e, 'about-us')}
-              className={`transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:text-gray-900' 
-                  : 'text-white/90 hover:text-white'
-              }`}
-            >
-              About Us
-            </a>
-            <a 
-              href="#reviews" 
-              onClick={(e) => handleNavClick(e, 'reviews')}
-              className={`transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:text-gray-900' 
-                  : 'text-white/90 hover:text-white'
-              }`}
-            >
-              Invest
-            </a>
-            <a 
-              href="#regulation" 
-              onClick={(e) => handleNavClick(e, 'regulation')}
-              className={`transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:text-gray-900' 
-                  : 'text-white/90 hover:text-white'
-              }`}
-            >
-              Security
-            </a>
-            <Link 
-              to="/signup" 
-              className={`px-4 py-2 rounded-lg transition-all duration-300 border ${
-                isScrolled 
-                  ? 'bg-gray-200 hover:bg-gray-300 text-gray-800 border-gray-300' 
-                  : 'bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-sm'
-              }`}
-            >
-              Sign up
-            </Link>
-            <Link 
-              to="/signin" 
-              className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
-            >
-              Sign in
-            </Link>
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={`transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+            }`}>Home</a>
+
+            <a href="#about-us" onClick={(e) => handleNavClick(e, 'about-us')} className={`transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+            }`}>About Us</a>
+
+            <a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')} className={`transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+            }`}>Invest</a>
+
+            <a href="#regulation" onClick={(e) => handleNavClick(e, 'regulation')} className={`transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+            }`}>Security</a>
+
+            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className={`transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+            }`}>Pricing</a>
+
+            <Link to="/signup" className={`px-4 py-2 rounded-lg transition-all duration-300 border ${
+              isScrolled ? 'bg-gray-200 hover:bg-gray-300 text-gray-800 border-gray-300' 
+                        : 'bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-sm'
+            }`}>Sign up</Link>
+
+            <Link to="/signin" className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-colors duration-300">Sign in</Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`md:hidden p-2 rounded-md transition-colors duration-300 ${
-              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'
-            }`}
-          >
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`md:hidden p-2 rounded-md transition-colors duration-300 ${
+            isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/20'
+          }`}>
             {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
           </button>
         </div>
@@ -131,66 +93,32 @@ const Navigation = () => {
             : 'bg-black/20 backdrop-blur-md border-t border-white/20'
         }`}>
           <div className="px-4 pt-4 pb-6 space-y-3">
-            <a 
-              href="#home" 
-              onClick={(e) => handleNavClick(e, 'home')}
-              className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white/90 hover:bg-white/10'
-              }`}
-            >
-              Home
-            </a>
-            <a 
-              href="#about-us" 
-              onClick={(e) => handleNavClick(e, 'about-us')}
-              className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white/90 hover:bg-white/10'
-              }`}
-            >
-              About Us
-            </a>
-            <a 
-              href="#reviews" 
-              onClick={(e) => handleNavClick(e, 'reviews')}
-              className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white/90 hover:bg-white/10'
-              }`}
-            >
-              Invest
-            </a>
-            <a 
-              href="#regulation" 
-              onClick={(e) => handleNavClick(e, 'regulation')}
-              className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
-                isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white/90 hover:bg-white/10'
-              }`}
-            >
-              Security
-            </a>
-            <Link 
-              to="/signup" 
-              className={`block px-4 py-3 text-lg font-medium rounded-md mt-3 transition-all duration-300 ${
-                isScrolled 
-                  ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                  : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
-              }`}
-            >
-              Sign up
-            </Link>
-            <Link 
-              to="/signin" 
-              className="block px-4 py-3 text-lg font-medium bg-emerald-500 text-white rounded-md mt-3 transition-colors duration-300 hover:bg-emerald-600"
-            >
-              Sign in
-            </Link>
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+            }`}>Home</a>
+
+            <a href="#about-us" onClick={(e) => handleNavClick(e, 'about-us')} className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+            }`}>About Us</a>
+
+            <a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')} className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+            }`}>Invest</a>
+
+            <a href="#regulation" onClick={(e) => handleNavClick(e, 'regulation')} className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+            }`}>Security</a>
+
+            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className={`block px-4 py-3 text-lg font-medium rounded-md transition-colors duration-300 ${
+              isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+            }`}>Pricing</a>
+
+            <Link to="/signup" className={`block px-4 py-3 text-lg font-medium rounded-md mt-3 transition-all duration-300 ${
+              isScrolled ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
+                        : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
+            }`}>Sign up</Link>
+
+            <Link to="/signin" className="block px-4 py-3 text-lg font-medium bg-emerald-500 text-white rounded-md mt-3 transition-colors duration-300 hover:bg-emerald-600">Sign in</Link>
           </div>
         </div>
       )}

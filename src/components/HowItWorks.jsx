@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const steps = [
   {
@@ -29,32 +30,51 @@ const steps = [
   },
 ];
 
+const dropIn = {
+  hidden: { opacity: 0, y: -40 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.2, duration: 0.6, type: 'spring' },
+  }),
+};
+
 const HowItWorks = () => {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Heading */}
-        <div className="text-center mb-20">
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: -30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           <span className="text-emerald-500 font-semibold text-lg tracking-wide mb-2 block">
             HOW IT WORKS
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
             Get Started In Minutes
           </h2>
-        </div>
+        </motion.div>
 
         {/* Desktop View */}
         <div className="hidden lg:block relative max-w-5xl mx-auto">
           {steps.map((step, index) => (
-            <div
+            <motion.div
               key={index}
+              custom={index}
+              initial="hidden"
+              whileInView="visible"
+              variants={dropIn}
+              viewport={{ once: true }}
               className={`flex items-start mb-32 ${
                 index % 2 === 0 ? '' : 'flex-row-reverse text-right'
               }`}
             >
               <div className="w-1/2 px-8">
                 <div className="flex items-start">
-                  {/* Step Circle & Line */}
                   {index % 2 !== 0 && (
                     <div className="flex flex-col items-center">
                       <div className="w-12 h-12 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold text-lg">
@@ -64,7 +84,6 @@ const HowItWorks = () => {
                     </div>
                   )}
 
-                  {/* Step Content */}
                   <div className={`ml-${index % 2 === 0 ? '6' : '0'} mr-${index % 2 !== 0 ? '6' : '0'} max-w-sm`}>
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
                     <p className="text-gray-600 text-base leading-relaxed mb-4">{step.desc}</p>
@@ -86,7 +105,7 @@ const HowItWorks = () => {
                 </div>
               </div>
               <div className="w-1/2"></div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -94,7 +113,15 @@ const HowItWorks = () => {
         <div className="block lg:hidden">
           <div className="space-y-12">
             {steps.map((step, index) => (
-              <div key={index} className="flex items-start">
+              <motion.div
+                key={index}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                variants={dropIn}
+                viewport={{ once: true }}
+                className="flex items-start"
+              >
                 <div className="w-12 h-12 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6 flex-shrink-0">
                   {step.num}
                 </div>
@@ -107,7 +134,7 @@ const HowItWorks = () => {
                     </button>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

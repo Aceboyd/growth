@@ -45,8 +45,8 @@ const Footer = () => {
       {/* Footer Section */}
       <footer className="bg-blue-900 pt-28 pb-12 px-4 lg:px-8 relative z-0">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-4 gap-8 text-left">
-            {/* Brand */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            {/* Brand and Description */}
             <div className="flex flex-col items-start">
               <div className="flex items-center mb-4">
                 <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-full flex items-center justify-center">
@@ -54,26 +54,18 @@ const Footer = () => {
                 </div>
                 <span className="ml-3 text-lg font-bold text-white">Growth Sphere</span>
               </div>
+              <p className="text-white/80 text-sm max-w-md leading-relaxed">
+                Growth Sphere is a trusted crypto investment platform that offers automated trading, secure wallets, and unmatched ROI for investors worldwide. We help you grow your wealth through innovation, transparency, and cutting-edge blockchain solutions.
+              </p>
             </div>
 
-            {/* Links 1 */}
-            <div className="space-y-3">
-              <a href="#home" className="block text-white/80 hover:text-white text-sm">Home</a>
-              <a href="#about" className="block text-white/80 hover:text-white text-sm">About Us</a>
-              <a href="#contact" className="block text-white/80 hover:text-white text-sm">Contact Us</a>
-              <a href="#privacy" className="block text-white/80 hover:text-white text-sm">Privacy Policy</a>
-            </div>
+            {/* Empty Column to balance layout */}
+            <div></div>
 
-            {/* Links 2 */}
-            <div className="space-y-3">
-              <a href="#regulation" className="block text-white/80 hover:text-white text-sm">Regulation</a>
-              <a href="#terms" className="block text-white/80 hover:text-white text-sm">Terms of Service</a>
-              <a href="#reviews" className="block text-white/80 hover:text-white text-sm">Reviews</a>
-            </div>
-
-            {/* Contact */}
-            <div className="text-white/80 flex flex-col items-start text-sm">
-              support@growthshereinvestment.com
+            {/* Contact Info */}
+            <div className="text-white/80 text-sm flex flex-col items-start">
+              <span className="mb-2 font-semibold">Contact</span>
+              <span>support@growthshereinvestment.com</span>
             </div>
           </div>
 

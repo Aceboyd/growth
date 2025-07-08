@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import DashboardContent from '../components/Dash'; // Renamed to avoid naming conflict
+import DashboardContent from '../components/Dash';
 import KYCVerification from '../components/KYCVerification';
 import DepositWithdraw from '../components/DepositWithdraw';
 import TransactionHistory from '../components/TransactionHistory';
@@ -22,7 +22,7 @@ function Dash() {
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardContent user={user} />;
+        return <DashboardContent user={user} setCurrentPage={setCurrentPage} />;
       case 'kyc':
         return <KYCVerification user={user} setUser={setUser} />;
       case 'deposit-withdraw':
@@ -34,7 +34,7 @@ function Dash() {
       case 'settings':
         return <UserSettings user={user} setUser={setUser} />;
       default:
-        return <DashboardContent user={user} />;
+        return <DashboardContent user={user} setCurrentPage={setCurrentPage} />;
     }
   };
 
@@ -54,7 +54,8 @@ function Dash() {
           {renderCurrentPage()}
         </main>
       </div>
-      {/* Mobile overlay */}
+
+      {/* Mobile overlay for sidebar */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"

@@ -3,16 +3,12 @@ import {
   User, 
   Shield, 
   Bell, 
-  Globe, 
-  Moon, 
-  Sun, 
-  Smartphone, 
   Mail, 
   Lock,
   Eye,
   EyeOff,
+  Smartphone,
   Save,
-  AlertCircle,
   CheckCircle
 } from 'lucide-react';
 
@@ -22,9 +18,6 @@ const UserSettings = ({ user, setUser }) => {
     name: user.name,
     email: user.email,
     phone: '+1 (555) 123-4567',
-    timezone: 'UTC-5',
-    language: 'en',
-    darkMode: true,
     emailNotifications: true,
     pushNotifications: true,
     smsNotifications: false,
@@ -42,7 +35,6 @@ const UserSettings = ({ user, setUser }) => {
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Globe },
   ];
 
   const handleInputChange = (e) => {
@@ -60,7 +52,6 @@ const UserSettings = ({ user, setUser }) => {
     setUser(prev => ({
       ...prev,
       name: formData.name,
-      email: formData.email
     }));
     
     setSaving(false);
@@ -75,11 +66,9 @@ const UserSettings = ({ user, setUser }) => {
           <div className="space-y-4 sm:space-y-6">
             <div className="flex items-center space-x-4 sm:space-x-6 flex-col sm:flex-row">
               <div className="relative">
-                <img
-                  src={user.avatar}
-                  alt="Profile"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
-                />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-700/50 flex items-center justify-center">
+                  <User className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+                </div>
                 <button className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-blue-600 transition-colors">
                   <User className="w-3 h-3" />
                 </button>
@@ -108,8 +97,8 @@ const UserSettings = ({ user, setUser }) => {
                   type="email"
                   name="email"
                   value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  disabled
+                  className="w-full bg-gray-700/30 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-gray-400 cursor-not-allowed text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -144,7 +133,7 @@ const UserSettings = ({ user, setUser }) => {
                 <span className="text-blue-400 font-medium text-sm sm:text-base">Security Status</span>
               </div>
               <p className="text-blue-300 text-xs sm:text-sm">
-                Your account is secured with two-factor authentication and KYC verification.
+                Your account is secured with KYC verification.
               </p>
             </div>
 
@@ -190,49 +179,6 @@ const UserSettings = ({ user, setUser }) => {
                     className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-base sm:text-lg font-bold text-white">Two-Factor Authentication</h3>
-              <div className="bg-gray-700/30 rounded-lg p-4">
-                <div className="flex items-center justify-between flex-col sm:flex-row space-y-3 sm:space-y-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <p className="text-white font-medium text-sm sm:text-base">Authenticator App</p>
-                      <p className="text-gray-400 text-xs sm:text-sm">Enabled</p>
-                    </div>
-                  </div>
-                  <button className="px-3 py-2 sm:px-4 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm">
-                    Disable
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-base sm:text-lg font-bold text-white">Login History</h3>
-              <div className="space-y-2">
-                {[
-                  { location: 'New York, US', time: '2024-01-15 14:30', device: 'Chrome on Windows' },
-                  { location: 'London, UK', time: '2024-01-14 09:15', device: 'Safari on iPhone' },
-                  { location: 'New York, US', time: '2024-01-13 16:45', device: 'Firefox on macOS' },
-                ].map((login, index) => (
-                  <div key={index} className="bg-gray-700/30 rounded-lg p-3">
-                    <div className="flex justify-between items-center flex-col sm:flex-row space-y-2 sm:space-y-0">
-                      <div className="text-center sm:text-left">
-                        <p className="text-white font-medium text-sm">{login.location}</p>
-                        <p className="text-gray-400 text-xs">{login.device}</p>
-                      </div>
-                      <div className="text-center sm:text-right">
-                        <p className="text-gray-400 text-xs">{login.time}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -343,97 +289,6 @@ const UserSettings = ({ user, setUser }) => {
                     />
                     <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'preferences':
-        return (
-          <div className="space-y-4 sm:space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-base sm:text-lg font-bold text-white">Display Preferences</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between bg-gray-700/30 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center space-x-2 sm:space-x-3">
-                    <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                    <div>
-                      <p className="text-white font-medium text-sm sm:text-base">Dark Mode</p>
-                      <p className="text-gray-400 text-xs sm:text-sm">Use dark theme across the platform</p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="darkMode"
-                      checked={formData.darkMode}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-base sm:text-lg font-bold text-white">Regional Settings</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Language</label>
-                  <select
-                    name="language"
-                    value={formData.language}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="de">German</option>
-                    <option value="ja">Japanese</option>
-                    <option value="ko">Korean</option>
-                    <option value="zh">Chinese</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Timezone</label>
-                  <select
-                    name="timezone"
-                    value={formData.timezone}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                  >
-                    <option value="UTC-12">UTC-12</option>
-                    <option value="UTC-11">UTC-11</option>
-                    <option value="UTC-10">UTC-10</option>
-                    <option value="UTC-9">UTC-9</option>
-                    <option value="UTC-8">UTC-8</option>
-                    <option value="UTC-7">UTC-7</option>
-                    <option value="UTC-6">UTC-6</option>
-                    <option value="UTC-5">UTC-5</option>
-                    <option value="UTC-4">UTC-4</option>
-                    <option value="UTC-3">UTC-3</option>
-                    <option value="UTC-2">UTC-2</option>
-                    <option value="UTC-1">UTC-1</option>
-                    <option value="UTC+0">UTC+0</option>
-                    <option value="UTC+1">UTC+1</option>
-                    <option value="UTC+2">UTC+2</option>
-                    <option value="UTC+3">UTC+3</option>
-                    <option value="UTC+4">UTC+4</option>
-                    <option value="UTC+5">UTC+5</option>
-                    <option value="UTC+6">UTC+6</option>
-                    <option value="UTC+7">UTC+7</option>
-                    <option value="UTC+8">UTC+8</option>
-                    <option value="UTC+9">UTC+9</option>
-                    <option value="UTC+10">UTC+10</option>
-                    <option value="UTC+11">UTC+11</option>
-                    <option value="UTC+12">UTC+12</option>
-                  </select>
                 </div>
               </div>
             </div>

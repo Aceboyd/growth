@@ -8,10 +8,15 @@ const SecuritySection = () => {
         <div className="mb-4">
           <span className="text-emerald-500 font-semibold text-lg">SECURITY</span>
         </div>
-        <h2 className="text-4xl font-bold text-gray-900 mb-16">
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">
           Our Commitment to Compliance and Your Protection
         </h2>
-        
+
+        <p className="text-gray-700 max-w-3xl mx-auto mb-16 text-lg">
+          <strong>Risk Management</strong><br />
+          Strategies with features like Copy Trading Option, Stop Loss/Take Profit, Negative balance protection and Trailing Stop, you can manage your losses and profits at the extreme minimum levels predetermined by you.
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           <div className="bg-gray-50 rounded-xl p-8">
             <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4 mx-auto">

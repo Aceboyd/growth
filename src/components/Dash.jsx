@@ -1,16 +1,18 @@
-import React from 'react';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  ArrowUpRight, 
+import React, { useState } from 'react';
+import {
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
   ArrowDownLeft,
+  Eye,
+  EyeOff,
   Shield,
-  Activity,
   Wallet
 } from 'lucide-react';
 
-const Dashboard = ({ user }) => {
+const Dashboard = ({ user, setCurrentPage }) => {
+  const [showBalance, setShowBalance] = useState(true);
+
   const portfolioData = [
     { name: 'Bitcoin', symbol: 'BTC', balance: 0.5847, value: 28435.50, change: 2.34 },
     { name: 'Ethereum', symbol: 'ETH', balance: 12.459, value: 23678.90, change: -1.12 },
@@ -25,10 +27,27 @@ const Dashboard = ({ user }) => {
   ];
 
   const overviewStats = [
-    { title: 'Total Balance', value: '$55,823.18', change: '+2.34%', positive: true, icon: Wallet },
-    { title: 'Total Deposits', value: '$48,500.00', change: '+$1,200', positive: true, icon: ArrowUpRight },
-    { title: 'Total Withdrawals', value: '$12,350.00', change: '-$450', positive: false, icon: ArrowDownLeft },
-    { title: 'Active Trades', value: '7', change: '+2', positive: true, icon: Activity },
+    {
+      title: 'Total Balance',
+      value: '$55,823.18',
+      change: '+2.34%',
+      positive: true,
+      icon: Wallet
+    },
+    {
+      title: 'Total Deposits',
+      value: '$48,500.00',
+      change: '+$1,200',
+      positive: true,
+      icon: ArrowUpRight
+    },
+    {
+      title: 'Total Profit',
+      value: '$12,350.00',
+      change: '+$450',
+      positive: true,
+      icon: ArrowDownLeft
+    },
   ];
 
   return (
@@ -48,22 +67,42 @@ const Dashboard = ({ user }) => {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      <div className="flex justify-between items-center mb-2 sm:mb-4">
+        <h3 className="text-white text-sm sm:text-base font-semibold">Overview</h3>
+        <button
+          onClick={() => setShowBalance(!showBalance)}
+          className="flex items-center space-x-1 text-gray-300 hover:text-white text-xs sm:text-sm"
+        >
+          {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <span>{showBalance ? 'Hide' : 'Show'}</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {overviewStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3 sm:p-6">
+            <div
+              key={index}
+              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3 sm:p-6"
+            >
               <div className="flex items-center justify-between mb-2 sm:mb-4">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <span className={`text-xs sm:text-sm font-medium ${stat.positive ? 'text-green-400' : 'text-red-400'}`}>
+                <span
+                  className={`text-xs sm:text-sm font-medium ${
+                    stat.positive ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
                   {stat.change}
                 </span>
               </div>
               <div>
                 <p className="text-gray-400 text-xs sm:text-sm mb-1">{stat.title}</p>
-                <p className="text-white text-lg sm:text-2xl font-bold">{stat.value}</p>
+                <p className="text-white text-lg sm:text-2xl font-bold">
+                  {showBalance ? stat.value : '••••••'}
+                </p>
               </div>
             </div>
           );
@@ -81,7 +120,7 @@ const Dashboard = ({ user }) => {
               <span className="text-xs sm:text-sm font-medium">+2.34%</span>
             </div>
           </div>
-          
+
           <div className="space-y-3 sm:space-y-4">
             {portfolioData.map((asset, index) => (
               <div key={index} className="flex items-center justify-between p-3 sm:p-4 bg-gray-700/30 rounded-lg border border-gray-600/50">
@@ -110,15 +149,26 @@ const Dashboard = ({ user }) => {
         <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all">
+            <button
+              onClick={() => setCurrentPage('deposit-withdraw')}
+              className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all"
+            >
               <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               <span className="text-white font-medium text-sm sm:text-base">Deposit</span>
             </button>
-            <button className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all">
+
+            <button
+              onClick={() => setCurrentPage('deposit-withdraw')}
+              className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all"
+            >
               <ArrowDownLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               <span className="text-white font-medium text-sm sm:text-base">Withdraw</span>
             </button>
-            <button className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all">
+
+            <button
+              onClick={() => setCurrentPage('market')} // ✅ Navigate to MarketTrades page
+              className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all"
+            >
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               <span className="text-white font-medium text-sm sm:text-base">Trade</span>
             </button>

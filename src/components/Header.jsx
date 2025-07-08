@@ -40,12 +40,8 @@ const Header = ({ user, setSidebarOpen }) => {
               <p className="text-white font-medium text-sm">{user.name}</p>
               <p className="text-gray-400 text-xs">ID: {user.id}</p>
             </div>
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden">
-              <img
-                src={user.avatar}
-                alt="User avatar"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700/50 flex items-center justify-center">
+              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
             </div>
           </div>
         </div>

@@ -10,8 +10,11 @@ import {
   Bitcoin,
   X
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'kyc', label: 'KYC Verification', icon: Shield },
@@ -25,6 +28,7 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
     setUser(null);
     setCurrentPage('dashboard');
     setSidebarOpen(false);
+    navigate('/signin');
   };
 
   const handleMenuClick = (itemId) => {
