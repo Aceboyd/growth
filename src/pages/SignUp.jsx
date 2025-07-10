@@ -9,6 +9,7 @@ const SignUp = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '', // ✅ Phone added here
     password: '',
     confirmPassword: '',
     investmentGoal: '',
@@ -103,6 +104,20 @@ const SignUp = () => {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 placeholder="john@example.com"
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                placeholder="e.g. +18123456789"
               />
             </div>
 
@@ -263,7 +278,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        {/* Security */}
+        {/* Security Info */}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>🔒 Your information is encrypted and secure</p>
           <p>SIPC insured up to $500,000</p>

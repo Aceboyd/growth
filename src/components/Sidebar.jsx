@@ -1,14 +1,15 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Shield, 
-  ArrowUpDown, 
-  History, 
-  TrendingUp, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Shield,
+  ArrowUpDown,
+  History,
+  TrendingUp,
+  Settings,
   LogOut,
   Bitcoin,
-  X
+  X,
+  User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +22,7 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
     { id: 'deposit-withdraw', label: 'Deposit & Withdraw', icon: ArrowUpDown },
     { id: 'transactions', label: 'Transaction History', icon: History },
     { id: 'market', label: 'Market Trades', icon: TrendingUp },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
   const handleLogout = () => {
@@ -46,12 +47,12 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
               <Bitcoin className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">CryptoTrade</h1>
+              <h1 className="text-xl font-bold text-white">Growthsphere</h1>
               <p className="text-gray-400 text-sm">Professional</p>
             </div>
           </div>
         </div>
-        
+
         <nav className="flex-1 py-6">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -60,8 +61,8 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
                 key={item.id}
                 onClick={() => setCurrentPage(item.id)}
                 className={`w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-700/50 transition-colors ${
-                  currentPage === item.id 
-                    ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400' 
+                  currentPage === item.id
+                    ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
                     : 'text-gray-300 hover:text-white'
                 }`}
               >
@@ -71,7 +72,7 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
             );
           })}
         </nav>
-        
+
         <div className="p-6 border-t border-gray-700/50">
           <button
             onClick={handleLogout}
@@ -84,30 +85,32 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
       </div>
 
       {/* Mobile Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/95 backdrop-blur-sm border-r border-gray-700/50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/95 backdrop-blur-sm border-r border-gray-700/50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-gray-700/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Bitcoin className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-white">CryptoTrade</h1>
-                  <p className="text-gray-400 text-xs">Professional</p>
-                </div>
+          {/* Logo + Close Button */}
+          <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Bitcoin className="w-5 h-5 text-white" />
               </div>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div>
+                <h1 className="text-lg font-bold text-white">Growthsphere</h1>
+                <p className="text-gray-400 text-xs">Professional</p>
+              </div>
             </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          
+
+          {/* Menu */}
           <nav className="flex-1 py-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -116,8 +119,8 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
                   key={item.id}
                   onClick={() => handleMenuClick(item.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${
-                    currentPage === item.id 
-                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400' 
+                    currentPage === item.id
+                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
                       : 'text-gray-300 hover:text-white'
                   }`}
                 >
@@ -127,8 +130,18 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
               );
             })}
           </nav>
-          
+
+          {/* User Info + Logout */}
           <div className="p-4 border-t border-gray-700/50">
+            <div className="flex items-center space-x-2 mb-3">
+              <div className="w-8 h-8 bg-gray-700/60 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-gray-300" />
+              </div>
+              <div>
+                <p className="text-white font-medium text-sm">{user.name}</p>
+                <p className="text-gray-400 text-xs">ID: {user.id}</p>
+              </div>
+            </div>
             <button
               onClick={handleLogout}
               className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"

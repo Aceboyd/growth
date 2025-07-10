@@ -9,6 +9,7 @@ import HowItWorks from '../components/HowItWorks';
 import PricingSection from '../components/PricingSection';
 import AboutUs from '../components/AboutUs';
 import CertificatesSection from '../components/CertificatesSection';
+import Testimony from '../components/Testimony';
 import FAQSection from '../components/FAQSection';
 import Footer from '../components/Footer';
 import TestimonialPopup from '../components/TestimonialPopup';
@@ -28,6 +29,7 @@ const LandingPage = () => {
       <PricingSection />
       <AboutUs />
       <CertificatesSection />
+      <Testimony />
       <FAQSection />
       <Footer />
       <TestimonialPopup />
