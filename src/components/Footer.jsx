@@ -52,7 +52,7 @@ const Footer = () => {
                 <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-full flex items-center justify-center">
                   <Globe className="h-5 w-5 text-white" />
                 </div>
-                <span className="ml-3 text-lg font-bold text-white">Growth Sphere</span>
+                <span className="ml-3 text-lg font-bold text-white"><h1 className="growth-logo">GROWTHSPHERE</h1></span>
               </div>
               <p className="text-white/80 text-sm max-w-md leading-relaxed">
                 Growth Sphere is a trusted crypto investment platform that offers automated trading, secure wallets, and unmatched ROI for investors worldwide. We help you grow your wealth through innovation, transparency, and cutting-edge blockchain solutions.

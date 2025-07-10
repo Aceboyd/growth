@@ -222,3 +222,27 @@ html, body {
     transform: translateX(-2px) translateY(2px) rotate(-1deg);
   }
 }
+
+
+@import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
+.growth-logo {
+  font-family: 'Creepster', cursive;
+  font-size: clamp(20px, 5vw, 34px); /* Smaller max size for tablets */
+  background: linear-gradient(to top right, #34D399, #5e934f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  letter-spacing: 2px;
+  display: inline-block;
+  margin: 0;
+}
+
+/* Optional: Further reduce font size for tablets (768px to 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .growth-logo {
+    font-size: 14px;
+  }
+}
+
+
