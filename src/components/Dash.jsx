@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 =======
 import React, { useState } from 'react';
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
@@ -12,7 +16,11 @@ import {
   EyeOff,
   Shield,
 <<<<<<< HEAD
+<<<<<<< HEAD
   Wallet,
+=======
+  Wallet
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 =======
   Wallet
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
@@ -21,9 +29,12 @@ import {
 const Dashboard = ({ user, setCurrentPage }) => {
   const [showBalance, setShowBalance] = useState(true);
 <<<<<<< HEAD
+<<<<<<< HEAD
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 
   const portfolioData = [
     { name: 'Bitcoin', symbol: 'BTC', balance: 0.5847, value: 28435.50, change: 2.34 },
@@ -31,6 +42,9 @@ const Dashboard = ({ user, setCurrentPage }) => {
     { name: 'Cardano', symbol: 'ADA', balance: 1250.00, value: 875.00, change: 5.67 },
     { name: 'Solana', symbol: 'SOL', balance: 45.67, value: 2834.78, change: 3.45 },
   ];
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 
   const recentTransactions = [
@@ -46,7 +60,11 @@ const Dashboard = ({ user, setCurrentPage }) => {
       change: '+2.34%',
       positive: true,
 <<<<<<< HEAD
+<<<<<<< HEAD
       icon: Wallet,
+=======
+      icon: Wallet
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 =======
       icon: Wallet
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
@@ -57,7 +75,11 @@ const Dashboard = ({ user, setCurrentPage }) => {
       change: '+$1,200',
       positive: true,
 <<<<<<< HEAD
+<<<<<<< HEAD
       icon: ArrowUpRight,
+=======
+      icon: ArrowUpRight
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
 =======
       icon: ArrowUpRight
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
@@ -67,6 +89,7 @@ const Dashboard = ({ user, setCurrentPage }) => {
       value: '$12,350.00',
       change: '+$450',
       positive: true,
+<<<<<<< HEAD
 <<<<<<< HEAD
       icon: ArrowDownLeft,
     },
@@ -101,6 +124,8 @@ const Dashboard = ({ user, setCurrentPage }) => {
             <Shield className="w-5 h-5 text-green-400" />
             <span className="text-sm font-medium">KYC {user.kycStatus}</span>
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
       icon: ArrowDownLeft
     },
   ];
@@ -117,11 +142,15 @@ const Dashboard = ({ user, setCurrentPage }) => {
           <div className="flex items-center space-x-2">
             <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             <span className="text-xs sm:text-sm font-medium">KYC {user.kycStatus}</span>
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
           </div>
         </div>
       </div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       {/* Overview */}
       <div className="flex justify-between items-center">
@@ -130,12 +159,17 @@ const Dashboard = ({ user, setCurrentPage }) => {
           onClick={() => setShowBalance(!showBalance)}
           className="flex items-center space-x-1 text-gray-300 hover:text-white text-sm"
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
       {/* Overview Stats */}
       <div className="flex justify-between items-center mb-2 sm:mb-4">
         <h3 className="text-white text-sm sm:text-base font-semibold">Overview</h3>
         <button
           onClick={() => setShowBalance(!showBalance)}
           className="flex items-center space-x-1 text-gray-300 hover:text-white text-xs sm:text-sm"
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
         >
           {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -143,6 +177,7 @@ const Dashboard = ({ user, setCurrentPage }) => {
         </button>
       </div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {overviewStats.map((stat, index) => {
@@ -156,6 +191,8 @@ const Dashboard = ({ user, setCurrentPage }) => {
                 <span
                   className={`text-sm font-medium ${stat.positive ? 'text-green-400' : 'text-red-400'}`}
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {overviewStats.map((stat, index) => {
           const Icon = stat.icon;
@@ -172,27 +209,37 @@ const Dashboard = ({ user, setCurrentPage }) => {
                   className={`text-xs sm:text-sm font-medium ${
                     stat.positive ? 'text-green-400' : 'text-red-400'
                   }`}
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
                 >
                   {stat.change}
                 </span>
               </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
               <p className="text-gray-400 text-sm mb-1">{stat.title}</p>
               <p className="text-white text-xl font-bold">{showBalance ? stat.value : '••••••'}</p>
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
               <div>
                 <p className="text-gray-400 text-xs sm:text-sm mb-1">{stat.title}</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">
                   {showBalance ? stat.value : '••••••'}
                 </p>
               </div>
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
             </div>
           );
         })}
       </div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       {/* Network Balance + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -256,6 +303,8 @@ const Dashboard = ({ user, setCurrentPage }) => {
               <ArrowUpRight className="w-5 h-5 text-white" />
               <span className="text-white font-medium text-base">Deposit</span>
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
       {/* Portfolio and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Portfolio */}
@@ -302,11 +351,15 @@ const Dashboard = ({ user, setCurrentPage }) => {
             >
               <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               <span className="text-white font-medium text-sm sm:text-base">Deposit</span>
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
             </button>
 
             <button
               onClick={() => setCurrentPage('deposit-withdraw')}
+<<<<<<< HEAD
 <<<<<<< HEAD
               className="w-full flex items-center space-x-3 p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition"
             >
@@ -321,6 +374,8 @@ const Dashboard = ({ user, setCurrentPage }) => {
               <TrendingUp className="w-5 h-5 text-white" />
               <span className="text-white font-medium text-base">Trade</span>
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
               className="w-full flex items-center space-x-3 p-3 sm:p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all"
             >
               <ArrowDownLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -333,6 +388,9 @@ const Dashboard = ({ user, setCurrentPage }) => {
             >
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               <span className="text-white font-medium text-sm sm:text-base">Trade</span>
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
             </button>
           </div>
@@ -340,6 +398,7 @@ const Dashboard = ({ user, setCurrentPage }) => {
       </div>
 
       {/* Recent Transactions */}
+<<<<<<< HEAD
 <<<<<<< HEAD
       <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
         <h3 className="text-xl font-bold text-white mb-5">Recent Transactions</h3>
@@ -377,6 +436,8 @@ const Dashboard = ({ user, setCurrentPage }) => {
                 <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
                   {tx.status}
 =======
+=======
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
       <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
         <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Recent Transactions</h3>
         <div className="space-y-3 sm:space-y-4">
@@ -401,6 +462,9 @@ const Dashboard = ({ user, setCurrentPage }) => {
                 <p className="text-white font-medium text-sm sm:text-base">{transaction.amount} {transaction.currency}</p>
                 <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
                   {transaction.status}
+<<<<<<< HEAD
+>>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
+=======
 >>>>>>> 17bd0c60f7c5cbc026be6b3bfcdc0a634c7da4a3
                 </span>
               </div>
