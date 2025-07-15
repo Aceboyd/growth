@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp, Eye, EyeOff, ArrowLeft, LogIn } from 'lucide-react';
+import axios from 'axios';
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +11,7 @@ const SignIn = () => {
     rememberMe: false
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -18,20 +20,66 @@ const SignIn = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    setError(''); // Clear error on input change
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Basic form validation
+
     if (!formData.email.trim() || !formData.password.trim()) {
       setError('Please enter both email and password');
       return;
     }
-    // Handle form submission
-    console.log('Sign in submitted:', formData);
-    // Navigate to dashboard
-    navigate('/dash');
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        'https://growthsphere.onrender.com/api/auth/login/',
+        {
+          email: formData.email,
+          password: formData.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // ✅ Only proceed if status is 200
+      if (response.status === 200) {
+        const { access, refresh, message } = response.data;
+
+        // Store tokens
+        localStorage.setItem('accessToken', access);
+        localStorage.setItem('refreshToken', refresh);
+
+        console.log('Login successful:', message);
+
+        // Navigate to dashboard
+        navigate('/dash');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+
+      if (err.response) {
+        console.error('Status:', err.response.status);
+        console.error('Data:', err.response.data);
+
+        const backendMessage =
+          err.response.data.detail ||
+          err.response.data.message ||
+          'Login failed. Please check your credentials.';
+        setError(backendMessage);
+      } else {
+        setError('Unable to connect to the server. Please try again later.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -113,10 +161,11 @@ const SignIn = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+              disabled={loading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
             >
               <LogIn className="h-5 w-5 mr-2" />
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
