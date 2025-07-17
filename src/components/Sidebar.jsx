@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   Shield,
@@ -12,9 +12,40 @@ import {
   User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState({ first_name: '', last_name: '', id: '' });
+
+  // Fetch user on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+
+      try {
+        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error('Unauthorized');
+
+        const data = await res.json();
+        setUser({
+          first_name: data.first_name,
+          last_name: data.last_name,
+          id: data.id || 'GS-001',
+        });
+      } catch (err) {
+        console.error('❌ Failed to fetch user:', err.message);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,7 +56,12 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await axios.post('https://growthsphere.onrender.com/api/auth/logout/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setUser(null);
     setCurrentPage('dashboard');
     setSidebarOpen(false);
@@ -91,7 +127,6 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo + Close Button */}
           <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -110,7 +145,6 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
             </button>
           </div>
 
-          {/* Menu */}
           <nav className="flex-1 py-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -131,14 +165,15 @@ const Sidebar = ({ currentPage, setCurrentPage, user, setUser, sidebarOpen, setS
             })}
           </nav>
 
-          {/* User Info + Logout */}
           <div className="p-4 border-t border-gray-700/50">
             <div className="flex items-center space-x-2 mb-3">
               <div className="w-8 h-8 bg-gray-700/60 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-gray-300" />
               </div>
               <div>
-                <p className="text-white font-medium text-sm">{user.name}</p>
+                <p className="text-white font-medium text-sm">
+                  {user.first_name} {user.last_name}
+                </p>
                 <p className="text-gray-400 text-xs">ID: {user.id}</p>
               </div>
             </div>

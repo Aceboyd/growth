@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -12,102 +12,63 @@ import {
   Calendar
 } from 'lucide-react';
 
-const TransactionHistory = () => {
+const TransactionHistory = ({ setCurrentPage }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [dateRange, setDateRange] = useState('all');
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const transactions = [
-    {
-      id: 'TXN001',
-      type: 'deposit',
-      amount: 1.5,
-      currency: 'BTC',
-      status: 'completed',
-      date: '2024-01-15 14:30:25',
-      txHash: '0x1234567890abcdef1234567890abcdef12345678',
-      fee: 0.0005,
-      network: 'Bitcoin'
-    },
-    {
-      id: 'TXN002',
-      type: 'withdrawal',
-      amount: 500,
-      currency: 'USDT',
-      status: 'pending',
-      date: '2024-01-15 12:15:43',
-      txHash: '0xabcdef1234567890abcdef1234567890abcdef12',
-      fee: 1.0,
-      network: 'TRC20'
-    },
-    {
-      id: 'TXN003',
-      type: 'trade',
-      amount: 2.5,
-      currency: 'ETH',
-      status: 'completed',
-      date: '2024-01-14 16:45:12',
-      txHash: '0x567890abcdef1234567890abcdef1234567890ab',
-      fee: 0.005,
-      network: 'Ethereum'
-    },
-    {
-      id: 'TXN004',
-      type: 'deposit',
-      amount: 1000,
-      currency: 'ADA',
-      status: 'completed',
-      date: '2024-01-14 09:20:18',
-      txHash: '0xcdef1234567890abcdef1234567890abcdef1234',
-      fee: 0.17,
-      network: 'Cardano'
-    },
-    {
-      id: 'TXN005',
-      type: 'withdrawal',
-      amount: 0.25,
-      currency: 'BTC',
-      status: 'failed',
-      date: '2024-01-13 11:30:55',
-      txHash: '0xef1234567890abcdef1234567890abcdef123456',
-      fee: 0.0005,
-      network: 'Bitcoin'
-    },
-    {
-      id: 'TXN006',
-      type: 'trade',
-      amount: 10,
-      currency: 'SOL',
-      status: 'completed',
-      date: '2024-01-12 13:22:37',
-      txHash: '0x234567890abcdef1234567890abcdef1234567890',
-      fee: 0.025,
-      network: 'Solana'
-    },
-    {
-      id: 'TXN007',
-      type: 'deposit',
-      amount: 750,
-      currency: 'USDT',
-      status: 'completed',
-      date: '2024-01-11 15:45:29',
-      txHash: '0x7890abcdef1234567890abcdef1234567890abcd',
-      fee: 1.0,
-      network: 'TRC20'
-    },
-    {
-      id: 'TXN008',
-      type: 'withdrawal',
-      amount: 5.0,
-      currency: 'ETH',
-      status: 'pending',
-      date: '2024-01-10 10:15:44',
-      txHash: '0x90abcdef1234567890abcdef1234567890abcdef',
-      fee: 0.005,
-      network: 'Ethereum'
-    }
-  ];
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('No access token found, redirecting to login');
+          setCurrentPage('login');
+          return;
+        }
+
+        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/transactions/', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            console.error('Unauthorized: Invalid or expired token');
+            setCurrentPage('login');
+          } else if (res.status === 403) {
+            console.error('Access forbidden: KYC verification may be required');
+            alert('Please complete KYC verification to access your transactions.');
+            setCurrentPage('kyc-verification');
+          }
+          throw new Error(`Failed to fetch transactions: ${res.status}`);
+        }
+
+        const data = await res.json();
+        setTransactions(data.map(tx => ({
+          id: tx.transaction_id || 'N/A',
+          type: tx.type || 'unknown',
+          amount: tx.amount || 0,
+          currency: tx.currency || 'N/A',
+          status: tx.status || 'unknown',
+          date: tx.date || 'N/A',
+          network: tx.network || 'N/A',
+        })));
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching transactions:', error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [setCurrentPage]);
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -163,22 +124,13 @@ const TransactionHistory = () => {
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.currency.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.txHash.toLowerCase().includes(searchTerm.toLowerCase());
+                         transaction.currency.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === 'all' || transaction.type === filterType;
     const matchesStatus = filterStatus === 'all' || transaction.status === filterStatus;
     
     return matchesSearch && matchesType && matchesStatus;
   });
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  const truncateHash = (hash) => {
-    return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
-  };
 
   const exportTransactions = () => {
     console.log('Exporting transactions...');
@@ -257,158 +209,144 @@ const TransactionHistory = () => {
         </div>
       </div>
 
-      {/* Mobile Transaction Cards */}
-      <div className="lg:hidden space-y-3">
-        {filteredTransactions.map((transaction) => (
-          <div key={transaction.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                {getTypeIcon(transaction.type)}
-                <span className={`px-2 py-1 text-xs rounded-full capitalize ${getTypeColor(transaction.type)}`}>
-                  {transaction.type}
-                </span>
+      {/* Loading State */}
+      {loading ? (
+        <div className="text-center py-12 text-gray-300">Loading transactions...</div>
+      ) : (
+        <>
+          {/* Mobile Transaction Cards */}
+          <div className="lg:hidden space-y-3">
+            {filteredTransactions.map((transaction) => (
+              <div key={transaction.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    {getTypeIcon(transaction.type)}
+                    <span className={`px-2 py-1 text-xs rounded-full capitalize ${getTypeColor(transaction.type)}`}>
+                      {transaction.type}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {getStatusIcon(transaction.status)}
+                    <span className={`px-2 py-1 text-xs rounded-full capitalize ${getStatusColor(transaction.status)}`}>
+                      {transaction.status}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">ID:</span>
+                    <span className="text-white font-mono text-sm">{transaction.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Amount:</span>
+                    <span className="text-white font-medium text-sm">{transaction.amount} {transaction.currency}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Currency:</span>
+                    <span className="text-white font-medium text-sm">{transaction.currency}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Date:</span>
+                    <span className="text-gray-300 text-sm">{transaction.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Network:</span>
+                    <span className="text-gray-400 text-sm">{transaction.network}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                {getStatusIcon(transaction.status)}
-                <span className={`px-2 py-1 text-xs rounded-full capitalize ${getStatusColor(transaction.status)}`}>
-                  {transaction.status}
-                </span>
-              </div>
+            ))}
+          </div>
+
+          {/* Desktop Transaction Table */}
+          <div className="hidden lg:block bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-700/50">
+                  <tr>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Transaction ID</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Type</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Amount</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Currency</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Status</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Date</th>
+                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Network</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTransactions.map((transaction, index) => (
+                    <tr key={transaction.id} className={`border-t border-gray-700/50 ${index % 2 === 0 ? 'bg-gray-800/25' : ''}`}>
+                      <td className="p-4">
+                        <div className="font-mono text-white text-sm">{transaction.id}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center space-x-2">
+                          {getTypeIcon(transaction.type)}
+                          <span className={`px-2 py-1 text-xs rounded-full capitalize ${getTypeColor(transaction.type)}`}>
+                            {transaction.type}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-white font-medium text-sm">
+                          {transaction.amount} {transaction.currency}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-white font-medium text-sm">{transaction.currency}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(transaction.status)}
+                          <span className={`px-2 py-1 text-xs rounded-full capitalize ${getStatusColor(transaction.status)}`}>
+                            {transaction.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-gray-300 text-sm">{transaction.date}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-gray-400 text-sm">{transaction.network}</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">ID:</span>
-                <span className="text-white font-mono text-sm">{transaction.id}</span>
+
+            {filteredTransactions.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-lg mb-2">No transactions found</div>
+                <p className="text-gray-500 text-sm">Try adjusting your search or filter criteria</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">Amount:</span>
-                <span className="text-white font-medium text-sm">{transaction.amount} {transaction.currency}</span>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {filteredTransactions.length > 0 && (
+            <div className="flex items-center justify-between bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
+              <div className="text-gray-300 text-xs sm:text-sm">
+                Showing {filteredTransactions.length} of {transactions.length} transactions
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">Date:</span>
-                <span className="text-gray-300 text-sm">{transaction.date}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">Hash:</span>
-                <button
-                  onClick={() => copyToClipboard(transaction.txHash)}
-                  className="text-blue-400 hover:text-blue-300 font-mono text-sm"
-                >
-                  {truncateHash(transaction.txHash)}
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
+                  Previous
+                </button>
+                <button className="px-2 py-1 sm:px-3 sm:py-1 bg-blue-500 text-white rounded text-xs sm:text-sm">
+                  1
+                </button>
+                <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
+                  2
+                </button>
+                <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
+                  Next
                 </button>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">Fee:</span>
-                <span className="text-gray-300 text-sm">{transaction.fee} {transaction.currency}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">Network:</span>
-                <span className="text-gray-400 text-sm">{transaction.network}</span>
-              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Transaction Table */}
-      <div className="hidden lg:block bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-700/50">
-              <tr>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Transaction ID</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Type</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Amount</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Status</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Date</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Transaction Hash</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Fee</th>
-                <th className="text-left text-gray-300 font-medium p-4 text-sm">Network</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((transaction, index) => (
-                <tr key={transaction.id} className={`border-t border-gray-700/50 ${index % 2 === 0 ? 'bg-gray-800/25' : ''}`}>
-                  <td className="p-4">
-                    <div className="font-mono text-white text-sm">{transaction.id}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      {getTypeIcon(transaction.type)}
-                      <span className={`px-2 py-1 text-xs rounded-full capitalize ${getTypeColor(transaction.type)}`}>
-                        {transaction.type}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-white font-medium text-sm">
-                      {transaction.amount} {transaction.currency}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(transaction.status)}
-                      <span className={`px-2 py-1 text-xs rounded-full capitalize ${getStatusColor(transaction.status)}`}>
-                        {transaction.status}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-gray-300 text-sm">{transaction.date}</div>
-                  </td>
-                  <td className="p-4">
-                    <button
-                      onClick={() => copyToClipboard(transaction.txHash)}
-                      className="font-mono text-blue-400 hover:text-blue-300 text-sm hover:bg-blue-500/10 px-2 py-1 rounded transition-colors"
-                      title="Click to copy"
-                    >
-                      {truncateHash(transaction.txHash)}
-                    </button>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-gray-300 text-sm">
-                      {transaction.fee} {transaction.currency}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-gray-400 text-sm">{transaction.network}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredTransactions.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-lg mb-2">No transactions found</div>
-            <p className="text-gray-500 text-sm">Try adjusting your search or filter criteria</p>
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {filteredTransactions.length > 0 && (
-        <div className="flex items-center justify-between bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-          <div className="text-gray-300 text-xs sm:text-sm">
-            Showing {filteredTransactions.length} of {transactions.length} transactions
-          </div>
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
-              Previous
-            </button>
-            <button className="px-2 py-1 sm:px-3 sm:py-1 bg-blue-500 text-white rounded text-xs sm:text-sm">
-              1
-            </button>
-            <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
-              2
-            </button>
-            <button className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors text-xs sm:text-sm">
-              Next
-            </button>
-          </div>
-        </div>
+          )}
+        </>
       )}
     </div>
   );

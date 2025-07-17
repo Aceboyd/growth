@@ -34,7 +34,7 @@ const SignIn = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
+      const res = await axios.post(
         'https://growthsphere.onrender.com/api/auth/login/',
         {
           email: formData.email,
@@ -47,28 +47,31 @@ const SignIn = () => {
         }
       );
 
-      // ✅ Only proceed if status is 200
-      if (response.status === 200) {
-        const { access, refresh, message } = response.data;
+      const { access, refresh, message } = res.data;
 
-        // Store tokens
-        localStorage.setItem('accessToken', access);
-        localStorage.setItem('refreshToken', refresh);
+      // Store tokens
+      localStorage.setItem('accessToken', access);
+      localStorage.setItem('refreshToken', refresh);
 
-        console.log('Login successful:', message);
+      // Fetch user profile with access token
+      const userRes = await axios.get(
+        'https://growthsphere.onrender.com/api/auth/user/',
+        {
+          headers: {
+            Authorization: `Bearer ${access}`
+          }
+        }
+      );
 
-        // Navigate to dashboard
-        navigate('/dash');
-      } else {
-        setError('Login failed. Please try again.');
-      }
+      // Store user info if needed
+      localStorage.setItem('user', JSON.stringify(userRes.data));
+
+      console.log('Login successful');
+      navigate('/dash');
+
     } catch (err) {
       console.error('Login error:', err);
-
       if (err.response) {
-        console.error('Status:', err.response.status);
-        console.error('Data:', err.response.data);
-
         const backendMessage =
           err.response.data.detail ||
           err.response.data.message ||
@@ -85,7 +88,6 @@ const SignIn = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center text-emerald-600 hover:text-emerald-700 mb-6">
             <ArrowLeft className="h-5 w-5 mr-2" />
@@ -98,13 +100,11 @@ const SignIn = () => {
           <p className="text-gray-600">Sign in to your GrowthSphere account</p>
         </div>
 
-        {/* Form */}
         <div className="bg-gray-50 rounded-xl p-8 border border-gray-200 shadow-lg">
           {error && (
             <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
@@ -118,7 +118,6 @@ const SignIn = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <div className="relative">
@@ -141,7 +140,6 @@ const SignIn = () => {
               </div>
             </div>
 
-            {/* Remember Me and Forgot Password */}
             <div className="flex items-center justify-between">
               <label className="flex items-center">
                 <input
@@ -158,7 +156,6 @@ const SignIn = () => {
               </span>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -169,7 +166,6 @@ const SignIn = () => {
             </button>
           </form>
 
-          {/* Sign Up Link */}
           <div className="text-center mt-6">
             <p className="text-gray-600">
               Don't have an account?{' '}

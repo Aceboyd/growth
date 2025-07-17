@@ -10,17 +10,21 @@ import {
   Wallet
 } from 'lucide-react';
 
-const Dashboard = ({ user, setCurrentPage }) => {
+const Dashboard = ({ setCurrentPage }) => {
   const [showBalance, setShowBalance] = useState(true);
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const portfolioData = [
-    { name: 'Bitcoin', symbol: 'BTC', balance: 0.5847, value: 28435.50, change: 2.34 },
-    { name: 'Ethereum', symbol: 'ETH', balance: 12.459, value: 23678.90, change: -1.12 },
-    { name: 'Cardano', symbol: 'ADA', balance: 1250.00, value: 875.00, change: 5.67 },
-    { name: 'Solana', symbol: 'SOL', balance: 45.67, value: 2834.78, change: 3.45 },
-  ];
+  const [finances, setFinances] = useState({
+    total_balance: '0.00',
+    total_deposit: '0.00',
+    total_profit: '0.00'
+  });
+  const [user, setUser] = useState({
+    first_name: '',
+    last_name: '',
+    kycStatus: '',
+    id: ''
+  });
 
   const recentTransactions = [
     { id: '1', type: 'deposit', amount: 1000, currency: 'USDT', date: '2024-01-15', status: 'completed' },
@@ -31,22 +35,19 @@ const Dashboard = ({ user, setCurrentPage }) => {
   const overviewStats = [
     {
       title: 'Total Balance',
-      value: '$55,823.18',
-      change: '+2.34%',
+      value: `$${Number(finances.total_balance).toLocaleString()}`,
       positive: true,
       icon: Wallet
     },
     {
       title: 'Total Deposits',
-      value: '$48,500.00',
-      change: '+$1,200',
+      value: `$${Number(finances.total_deposit).toLocaleString()}`,
       positive: true,
       icon: ArrowUpRight
     },
     {
       title: 'Total Profit',
-      value: '$12,350.00',
-      change: '+$450',
+      value: `$${Number(finances.total_profit).toLocaleString()}`,
       positive: true,
       icon: ArrowDownLeft
     },
@@ -65,8 +66,84 @@ const Dashboard = ({ user, setCurrentPage }) => {
         console.error('Error fetching coins:', error);
       }
     };
+
+    const fetchFinances = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('No access token found, redirecting to login');
+          setCurrentPage('login');
+          return;
+        }
+
+        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/finances/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            console.error('Unauthorized: Invalid or expired token');
+            setCurrentPage('login');
+          } else if (res.status === 403) {
+            console.error('Access forbidden: KYC verification may be required');
+            alert('Please complete KYC verification to access your finances.');
+            setCurrentPage('kyc-verification');
+          }
+          throw new Error(`Failed to fetch finances: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setFinances(data[0]);
+        } else {
+          console.warn('No finance data returned');
+        }
+      } catch (error) {
+        console.error('Error fetching finances:', error.message);
+      }
+    };
+
+    const fetchUser = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+      try {
+        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            console.error('Unauthorized: Invalid or expired token');
+            setCurrentPage('login');
+          }
+          throw new Error(`Failed to fetch user: ${res.status}`);
+        }
+
+        const data = await res.json();
+        setUser({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          kycStatus: data.kyc_status || 'Not Verified',
+          id: data.id || 'GS-001',
+        });
+      } catch (err) {
+        console.error('❌ Failed to fetch user:', err.message);
+      }
+    };
+
     fetchCoins();
-  }, []);
+    fetchFinances();
+    fetchUser();
+  }, [setCurrentPage]);
 
   return (
     <div className="space-y-6">
@@ -74,8 +151,12 @@ const Dashboard = ({ user, setCurrentPage }) => {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Welcome back, {user.name}!</h2>
-            <p className="text-blue-100 text-sm">Your portfolio is performing well today</p>
+            <h2 className="text-2xl font-bold">
+              Welcome back, {user.first_name} {user.last_name}!
+            </h2>
+            <p className="text-blue-100 text-sm">
+              Your portfolio is performing well today
+            </p>
           </div>
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-green-400" />

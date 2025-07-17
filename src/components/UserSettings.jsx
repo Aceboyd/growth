@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Shield, 
@@ -15,9 +15,10 @@ import {
 const UserSettings = ({ user, setUser }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: '+1 (555) 123-4567',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
     emailNotifications: true,
     pushNotifications: true,
     smsNotifications: false,
@@ -30,12 +31,58 @@ const UserSettings = ({ user, setUser }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState(null);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setError('No access token found');
+        return;
+      }
+
+      try {
+        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error('Unauthorized');
+        }
+
+        const data = await res.json();
+        setFormData(prev => ({
+          ...prev,
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
+          email: data.email || '',
+          phone: data.phone_number || ''
+        }));
+        setUser({
+          id: data.pk || 'GS-001',
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
+          email: data.email || '',
+          phone: data.phone_number || '',
+          kycStatus: user.kycStatus || 'Verified' // Preserve existing kycStatus or default
+        });
+      } catch (err) {
+        setError(err.message);
+        console.error('❌ Failed to fetch user:', err.message);
+      }
+    };
+
+    fetchUser();
+  }, [setUser]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -47,16 +94,25 @@ const UserSettings = ({ user, setUser }) => {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setUser(prev => ({
-      ...prev,
-      name: formData.name,
-    }));
-    
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      // Simulate API call to save data
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(prev => ({
+        ...prev,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone
+      }));
+      
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
   };
 
   const renderTabContent = () => {
@@ -64,6 +120,11 @@ const UserSettings = ({ user, setUser }) => {
       case 'profile':
         return (
           <div className="space-y-4 sm:space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             <div className="flex items-center space-x-4 sm:space-x-6 flex-col sm:flex-row">
               <div className="relative">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-700/50 flex items-center justify-center">
@@ -74,7 +135,7 @@ const UserSettings = ({ user, setUser }) => {
                 </button>
               </div>
               <div className="text-center sm:text-left">
-                <h3 className="text-lg sm:text-xl font-bold text-white">{user.name}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-white">{user.firstName} {user.lastName}</h3>
                 <p className="text-gray-400 text-sm">User ID: {user.id}</p>
                 <p className="text-green-400 text-sm">KYC {user.kycStatus}</p>
               </div>
@@ -82,11 +143,21 @@ const UserSettings = ({ user, setUser }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">Full Name</label>
+                <label className="block text-gray-300 text-sm font-medium mb-2">First Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
                   onChange={handleInputChange}
                   className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
