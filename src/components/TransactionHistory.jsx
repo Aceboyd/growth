@@ -351,5 +351,4 @@ const TransactionHistory = ({ setCurrentPage }) => {
     </div>
   );
 };
-
 export default TransactionHistory;
