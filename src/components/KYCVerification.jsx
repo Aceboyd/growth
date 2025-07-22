@@ -1,86 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Upload,
-  CheckCircle,
-  Clock,
-  AlertTriangle
-} from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { Upload, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dunqe09gc/image/upload';
+const UPLOAD_PRESET = 'jayjay';
+const API_BASE_URL = 'https://growthsphere.onrender.com';
+
+const StatusCard = ({ icon, color, title, message }) => (
+  <div className="max-w-xl mx-auto text-center bg-gray-800 p-8 rounded-xl border border-gray-700">
+    <div className={`w-16 h-16 mx-auto mb-4 ${color} rounded-full flex items-center justify-center`}>
+      {icon}
+    </div>
+    <h2 className="text-white text-2xl font-bold mb-2">{title}</h2>
+    <p className="text-gray-300 text-sm mb-4">{message}</p>
+  </div>
+);
 
 const KYCVerification = ({ user, setUser }) => {
   const [formData, setFormData] = useState({
     idType: 'passport',
     idFront: null,
     idBack: null,
+    idFrontUrl: '',
+    idBackUrl: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const navigate = useNavigate();
 
-  // Polling logic for backend status updates
-  useEffect(() => {
-    let pollInterval;
-    if (user.kycStatus === 'pending') {
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await axios.get(
-            'https://growthsphere.onrender.com/api/auth/kyc-status/',
-            { withCredentials: true }
-          );
-          const newStatus = res.data.status;
-          if (newStatus && newStatus !== 'pending') {
-            setUser(prev => ({ ...prev, kycStatus: newStatus }));
-            clearInterval(pollInterval);
-          }
-        } catch (err) {
-          console.error('Polling error:', err);
-        }
-      }, 5000);
-    }
-    return () => clearInterval(pollInterval);
-  }, [user.kycStatus]);
+  const getAccessToken = () => localStorage.getItem('accessToken');
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const { name, files } = e.target;
-    if (files?.[0]) {
-      setFormData(prev => ({ ...prev, [name]: files[0] }));
+    const file = files[0];
+    if (!file) return;
+
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      data.append('upload_preset', UPLOAD_PRESET);
+
+      const res = await axios.post(CLOUDINARY_URL, data);
+      const fileUrl = res.data.secure_url;
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: file,
+        [`${name}Url`]: fileUrl,
+      }));
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Failed to upload file.');
     }
   };
 
   const handleSubmit = async () => {
-    const formDataToSend = new FormData();
-    formDataToSend.append('id_type', formData.idType);
-    formDataToSend.append('id_front', formData.idFront);
-    formDataToSend.append('id_back', formData.idBack);
+    if (!formData.idFrontUrl || !formData.idBackUrl) {
+      return alert('Please upload both front and back of your ID.');
+    }
 
+    setSubmitting(true);
     try {
-      setSubmitting(true);
+      const token = getAccessToken();
+      if (!token) {
+        alert('Please log in to submit KYC documents.');
+        navigate('/signin');
+        return;
+      }
+
       await axios.post(
-        'https://growthsphere.onrender.com/api/auth/kyc-upload/',
-        formDataToSend,
+        `${API_BASE_URL}/api/auth/kyc-upload/`,
         {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          withCredentials: true
+          id_type: formData.idType,
+          id_front_url: formData.idFrontUrl,
+          id_back_url: formData.idBackUrl,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      setUser(prev => ({ ...prev, kycStatus: 'pending' }));
-    } catch (error) {
-      console.error('KYC Upload Error:', error);
-      alert('Upload failed. Please try again.');
+
+      setHasSubmitted(true);
+      // Start polling for status updates
+      pollStatus();
+    } catch (err) {
+      console.error('KYC submission error:', err);
+      if (err.response?.status === 415) {
+        alert('Unsupported media type. Please check the content type or contact support.');
+      } else if (err.response?.status === 401) {
+        alert('Session expired. Please log in again.');
+        navigate('/signin');
+      } else {
+        alert(
+          err.response?.data?.message ||
+            err.response?.data?.detail ||
+            'Failed to submit KYC documents.'
+        );
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const StatusCard = ({ icon, color, title, message }) => (
-    <div className="max-w-xl mx-auto text-center bg-gray-800 p-8 rounded-xl border border-gray-700">
-      <div className={`w-16 h-16 mx-auto mb-4 ${color} rounded-full flex items-center justify-center`}>
-        {icon}
-      </div>
-      <h2 className="text-white text-2xl font-bold mb-2">{title}</h2>
-      <p className="text-gray-300 text-sm mb-4">{message}</p>
-    </div>
-  );
+  const pollStatus = useCallback(() => {
+    const interval = setInterval(async () => {
+      try {
+        const token = getAccessToken();
+        if (!token) {
+          alert('Session expired. Please log in again.');
+          navigate('/signin');
+          clearInterval(interval);
+          return;
+        }
 
-  if (user.kycStatus === 'verified') {
+        const res = await axios.get(`${API_BASE_URL}/api/auth/kyc-upload/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const updatedStatus = res.data.kyc_status; // Map to backend field
+
+        if (updatedStatus !== user.status) {
+          setUser((prev) => ({ ...prev, status: updatedStatus }));
+        }
+
+        // Stop polling if status becomes final
+        if (['verified', 'approved', 'rejected'].includes(updatedStatus)) {
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error('Polling failed:', err);
+        alert('Failed to fetch KYC status.');
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [setUser, navigate]);
+
+  useEffect(() => {
+    if (user.status === 'pending' || user.status === 'in_review' || user.status === 'verified' || user.status === 'approved' || user.status === 'rejected') {
+      setHasSubmitted(true);
+      const cleanup = pollStatus();
+      return cleanup;
+    }
+  }, [user.status, pollStatus]);
+
+  // UI Based on Status
+  if (user.status === 'verified' || user.status === 'approved') {
     return (
       <StatusCard
         icon={<CheckCircle className="w-8 h-8 text-green-400" />}
@@ -91,7 +160,7 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
-  if (user.kycStatus === 'pending') {
+  if (user.status === 'pending') {
     return (
       <StatusCard
         icon={<Clock className="w-8 h-8 text-yellow-400" />}
@@ -102,7 +171,7 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
-  if (user.kycStatus === 'rejected') {
+  if (user.status === 'rejected') {
     return (
       <StatusCard
         icon={<AlertTriangle className="w-8 h-8 text-red-400" />}
@@ -113,7 +182,7 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
-  if (user.kycStatus === 'in_review') {
+  if (user.status === 'in_review') {
     return (
       <StatusCard
         icon={<Clock className="w-8 h-8 text-blue-400" />}
@@ -124,17 +193,30 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
+  // Show submitted card after submission
+  if (hasSubmitted) {
+    return (
+      <StatusCard
+        icon={<CheckCircle className="w-8 h-8 text-blue-400" />}
+        color="bg-blue-500/20"
+        title="KYC Submitted"
+        message="Your documents have been successfully submitted for verification. You will be notified once the review is complete."
+      />
+    );
+  }
+
+  // Default Form UI
   return (
     <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-xl border border-gray-700">
       <h2 className="text-white text-2xl font-bold mb-6">KYC Verification</h2>
 
-      {/* Document Type */}
+      {/* Document Type Selector */}
       <div className="mb-6">
         <label className="block text-gray-300 text-sm font-medium mb-2">Document Type</label>
         <select
           name="idType"
           value={formData.idType}
-          onChange={(e) => setFormData(prev => ({ ...prev, idType: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, idType: e.target.value }))}
           className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
         >
           <option value="passport">Passport</option>
@@ -143,7 +225,7 @@ const KYCVerification = ({ user, setUser }) => {
         </select>
       </div>
 
-      {/* ID Uploads */}
+      {/* File Uploads */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Front of ID */}
         <div>

@@ -47,7 +47,7 @@ const SignIn = () => {
         }
       );
 
-      const { access, refresh, message } = res.data;
+      const { access, refresh } = res.data;
 
       // Store tokens
       localStorage.setItem('accessToken', access);
