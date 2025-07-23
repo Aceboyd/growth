@@ -65,13 +65,8 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="text-white/80 text-sm flex flex-col items-start">
               <span className="mb-2 font-semibold">Contact</span>
-              <span>support@growthshereinvestment.com</span>
+              <span>support@growthshere.com</span>
             </div>
-          </div>
-
-          {/* Bottom Text */}
-          <div className="border-t border-white/20 mt-8 pt-8 text-sm text-white/60 text-left">
-            © 2020 Growthsphere Investment
           </div>
         </div>
       </footer>
