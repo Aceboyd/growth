@@ -9,7 +9,7 @@ import MarketTrades from '../components/MarketTrades';
 import UserSettings from '../components/UserSettings';
 
 function Dash() {
-  const [currentPage, setCurrentPage] = useState('kyc'); // 👈 Show KYC first for testing
+  const [currentPage, setCurrentPage] = useState('Dash'); // 👈 Show KYC first for testing
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [user, setUser] = useState({

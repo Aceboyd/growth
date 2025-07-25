@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Upload, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -26,10 +26,46 @@ const KYCVerification = ({ user, setUser }) => {
     idBackUrl: '',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const getAccessToken = () => localStorage.getItem('accessToken');
+
+  useEffect(() => {
+    const fetchUserStatus = async () => {
+      setLoading(true);
+      const token = getAccessToken();
+      if (!token) {
+        console.warn('No access token found, redirecting to signin');
+        navigate('/signin');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/auth/user/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('Fetched user data on mount:', response.data);
+        setUser(response.data);
+      } catch (err) {
+        console.error('Failed to fetch user status:', err.response?.data || err.message);
+        if (err.response?.status === 401) {
+          alert('Session expired. Please log in again.');
+          navigate('/signin');
+        } else {
+          // Fallback to prevent form from showing on fetch failure
+          setUser((prev) => ({ ...prev, status: 'error' }));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserStatus();
+  }, [navigate, setUser]);
 
   const handleFileUpload = async (e) => {
     const { name, files } = e.target;
@@ -84,71 +120,35 @@ const KYCVerification = ({ user, setUser }) => {
         }
       );
 
-      setHasSubmitted(true);
-      // Start polling for status updates
-      pollStatus();
+      // Set status to in_review immediately
+      setUser((prev) => ({ ...prev, status: 'in_review' }));
+
+      // Reset form data
+      setFormData({
+        idType: 'passport',
+        idFront: null,
+        idBack: null,
+        idFrontUrl: '',
+        idBackUrl: '',
+      });
     } catch (err) {
-      console.error('KYC submission error:', err);
-      if (err.response?.status === 415) {
-        alert('Unsupported media type. Please check the content type or contact support.');
-      } else if (err.response?.status === 401) {
-        alert('Session expired. Please log in again.');
-        navigate('/signin');
-      } else {
-        alert(
-          err.response?.data?.message ||
-            err.response?.data?.detail ||
-            'Failed to submit KYC documents.'
-        );
-      }
+      console.error('KYC submission error:', err.response?.data || err.message);
+      alert(
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        'Failed to submit KYC documents. Please try again or contact support.'
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const pollStatus = useCallback(() => {
-    const interval = setInterval(async () => {
-      try {
-        const token = getAccessToken();
-        if (!token) {
-          alert('Session expired. Please log in again.');
-          navigate('/signin');
-          clearInterval(interval);
-          return;
-        }
+  if (loading) {
+    return <div className="text-center text-gray-300">Loading...</div>;
+  }
 
-        const res = await axios.get(`${API_BASE_URL}/api/auth/kyc-upload/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const updatedStatus = res.data.kyc_status; // Map to backend field
+  console.log('Current user status:', user.status); // Debug user status
 
-        if (updatedStatus !== user.status) {
-          setUser((prev) => ({ ...prev, status: updatedStatus }));
-        }
-
-        // Stop polling if status becomes final
-        if (['verified', 'approved', 'rejected'].includes(updatedStatus)) {
-          clearInterval(interval);
-        }
-      } catch (err) {
-        console.error('Polling failed:', err);
-        alert('Failed to fetch KYC status.');
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [setUser, navigate]);
-
-  useEffect(() => {
-    if (user.status === 'pending' || user.status === 'in_review' || user.status === 'verified' || user.status === 'approved' || user.status === 'rejected') {
-      setHasSubmitted(true);
-      const cleanup = pollStatus();
-      return cleanup;
-    }
-  }, [user.status, pollStatus]);
-
-  // UI Based on Status
   if (user.status === 'verified' || user.status === 'approved') {
     return (
       <StatusCard
@@ -156,17 +156,6 @@ const KYCVerification = ({ user, setUser }) => {
         color="bg-green-500/20"
         title="KYC Verified"
         message="Your identity has been successfully verified. You now have full access to the platform."
-      />
-    );
-  }
-
-  if (user.status === 'pending') {
-    return (
-      <StatusCard
-        icon={<Clock className="w-8 h-8 text-yellow-400" />}
-        color="bg-yellow-500/20"
-        title="KYC Pending"
-        message="Your documents have been submitted. We’re reviewing them and will notify you once verified."
       />
     );
   }
@@ -182,7 +171,7 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
-  if (user.status === 'in_review') {
+  if (user.status === 'pending' || user.status === 'in_review') {
     return (
       <StatusCard
         icon={<Clock className="w-8 h-8 text-blue-400" />}
@@ -193,24 +182,20 @@ const KYCVerification = ({ user, setUser }) => {
     );
   }
 
-  // Show submitted card after submission
-  if (hasSubmitted) {
+  if (user.status === 'error') {
     return (
       <StatusCard
-        icon={<CheckCircle className="w-8 h-8 text-blue-400" />}
-        color="bg-blue-500/20"
-        title="KYC Submitted"
-        message="Your documents have been successfully submitted for verification. You will be notified once the review is complete."
+        icon={<AlertTriangle className="w-8 h-8 text-yellow-400" />}
+        color="bg-yellow-500/20"
+        title="Error"
+        message="Unable to load KYC status. Please try again or contact support."
       />
     );
   }
 
-  // Default Form UI
   return (
     <div className="max-w-3xl mx-auto bg-gray-800 p-8 rounded-xl border border-gray-700">
       <h2 className="text-white text-2xl font-bold mb-6">KYC Verification</h2>
-
-      {/* Document Type Selector */}
       <div className="mb-6">
         <label className="block text-gray-300 text-sm font-medium mb-2">Document Type</label>
         <select
@@ -225,14 +210,12 @@ const KYCVerification = ({ user, setUser }) => {
         </select>
       </div>
 
-      {/* File Uploads */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* Front of ID */}
         <div>
           <label className="block text-gray-300 text-sm mb-2">Front of ID</label>
           <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
             <Upload className="mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-400 text-xs mb-2">Upload front of your ID</p>
+            <p className="text-gray-300 text-xs mb-2">Upload front of your ID</p>
             <input
               type="file"
               name="idFront"
@@ -253,12 +236,11 @@ const KYCVerification = ({ user, setUser }) => {
           </div>
         </div>
 
-        {/* Back of ID */}
         <div>
           <label className="block text-gray-300 text-sm mb-2">Back of ID</label>
           <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
             <Upload className="mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-400 text-xs mb-2">Upload back of your ID</p>
+            <p className="text-gray-300 text-xs mb-2">Upload back of your ID</p>
             <input
               type="file"
               name="idBack"

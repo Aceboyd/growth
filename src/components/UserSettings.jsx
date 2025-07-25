@@ -12,13 +12,15 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://growthsphere.onrender.com';
+
 const UserSettings = ({ user, setUser }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     emailNotifications: true,
     pushNotifications: true,
     smsNotifications: false,
@@ -26,12 +28,13 @@ const UserSettings = ({ user, setUser }) => {
     marketNews: true,
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -39,17 +42,17 @@ const UserSettings = ({ user, setUser }) => {
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
 
-  // Fetch user data on component mount
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        setError('No access token found');
+        setError('Please log in to continue');
+        setIsLoading(false);
         return;
       }
 
       try {
-        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/user/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -60,12 +63,12 @@ const UserSettings = ({ user, setUser }) => {
         }
 
         const data = await res.json();
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           firstName: data.first_name || '',
           lastName: data.last_name || '',
           email: data.email || '',
-          phone: data.phone_number || ''
+          phone: data.phone_number || '',
         }));
         setUser({
           id: data.pk || 'GS-001',
@@ -73,48 +76,135 @@ const UserSettings = ({ user, setUser }) => {
           lastName: data.last_name || '',
           email: data.email || '',
           phone: data.phone_number || '',
-          kycStatus: user.kycStatus || 'Verified' // Preserve existing kycStatus or default
+          kycStatus: user?.kycStatus || 'Verified',
         });
       } catch (err) {
-        setError(err.message);
+        setError(
+          err.message === 'Failed to fetch'
+            ? 'Unable to connect to the server. Please check your internet connection or try again later.'
+            : err.message
+        );
         console.error('❌ Failed to fetch user:', err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUser();
-  }, [setUser]);
+  }, [setUser, user?.kycStatus]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setError(null);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setError('Please log in to continue');
+      setSaving(false);
+      return;
+    }
+
     try {
-      // Simulate API call to save data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setUser(prev => ({
-        ...prev,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone
-      }));
-      
+      if (activeTab === 'security') {
+        if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
+          setError('All password fields are required');
+          setSaving(false);
+          return;
+        }
+        if (formData.newPassword !== formData.confirmPassword) {
+          setError('New password and confirm password do not match');
+          setSaving(false);
+          return;
+        }
+        if (formData.newPassword.length < 8) {
+          setError('New password must be at least 8 characters long');
+          setSaving(false);
+          return;
+        }
+
+        const res = await fetch(`${API_BASE_URL}/api/auth/change-password/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            current_password: formData.currentPassword,
+            new_password: formData.newPassword,
+            confirm_password: formData.confirmPassword,
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || errorData.error || 'Failed to change password');
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        }));
+      } else if (activeTab === 'profile') {
+        const res = await fetch(`${API_BASE_URL}/api/auth/user/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone_number: formData.phone,
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to update profile');
+        }
+
+        const data = await res.json();
+        setUser((prev) => ({
+          ...prev,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          phone: data.phone_number,
+        }));
+      } else if (activeTab === 'notifications') {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.message === 'Failed to fetch'
+          ? 'Unable to connect to the server. Please check your internet connection or try again later.'
+          : err.message
+      );
       setSaving(false);
+      console.error('❌ Error:', err.message);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 text-white text-center">
+        Loading user data...
+      </div>
+    );
+  }
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
@@ -198,6 +288,11 @@ const UserSettings = ({ user, setUser }) => {
       case 'security':
         return (
           <div className="space-y-4 sm:space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Shield className="w-4 h-4 text-blue-400" />
@@ -258,6 +353,11 @@ const UserSettings = ({ user, setUser }) => {
       case 'notifications':
         return (
           <div className="space-y-4 sm:space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             <div className="space-y-4">
               <h3 className="text-base sm:text-lg font-bold text-white">Notification Preferences</h3>
               
@@ -341,7 +441,8 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-no
+                    ne peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 
@@ -373,7 +474,6 @@ const UserSettings = ({ user, setUser }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-      {/* Header */}
       <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-col sm:flex-row space-y-3 sm:space-y-0">
           <div className="text-center sm:text-left">
@@ -390,7 +490,6 @@ const UserSettings = ({ user, setUser }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-        {/* Settings Navigation */}
         <div className="lg:col-span-1">
           <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
             <nav className="space-y-2">
@@ -415,12 +514,10 @@ const UserSettings = ({ user, setUser }) => {
           </div>
         </div>
 
-        {/* Settings Content */}
         <div className="lg:col-span-3">
           <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
             {renderTabContent()}
             
-            {/* Save Button */}
             <div className="mt-6 sm:mt-8 flex justify-end">
               <button
                 onClick={handleSave}
