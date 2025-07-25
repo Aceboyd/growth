@@ -65,7 +65,7 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="text-white/80 text-sm flex flex-col items-start">
               <span className="mb-2 font-semibold">Contact</span>
-              <span>support@growthshere.com</span>
+              <span>info@growthsph.com</span>
             </div>
           </div>
         </div>

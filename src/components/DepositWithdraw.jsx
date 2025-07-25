@@ -33,14 +33,6 @@ const DepositWithdraw = () => {
     ADA: 'addr1qyyzxvczxvczxvczxvczxvczxvczxvczxvczxv',
     SOL: 'Fzxvczxvczxvczxvczxvczxvczxvczxvczxvczxv'
   };
-
-  const recentTransactions = [
-    { id: '1', type: 'deposit', amount: 0.5, currency: 'BTC', status: 'completed', date: '2024-01-15 14:30' },
-    { id: '2', type: 'withdrawal', amount: 100, currency: 'USDT', status: 'pending', date: '2024-01-14 16:45' },
-    { id: '3', type: 'deposit', amount: 2.5, currency: 'ETH', status: 'completed', date: '2024-01-13 09:20' },
-    { id: '4', type: 'withdrawal', amount: 50, currency: 'ADA', status: 'failed', date: '2024-01-12 11:15' },
-  ];
-
   const selectedCrypto = cryptocurrencies.find(crypto => crypto.symbol === selectedCurrency);
 
   const handleCopyAddress = (address) => {
@@ -50,32 +42,6 @@ const DepositWithdraw = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress });
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-400" />;
-      case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-400" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-red-400" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-500/20 text-green-400';
-      case 'pending':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'failed':
-        return 'bg-red-500/20 text-red-400';
-      default:
-        return 'bg-gray-500/20 text-gray-400';
-    }
   };
 
   return (
@@ -88,7 +54,7 @@ const DepositWithdraw = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Form */}
-        <div className="lg:col-span-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
+        <div className="lg:col-span-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
           {/* Tabs */}
           <div className="flex space-x-1 mb-4 sm:mb-6 bg-gray-700/50 p-1 rounded-lg">
             <button
@@ -255,35 +221,6 @@ const DepositWithdraw = () => {
               </button>
             </form>
           )}
-        </div>
-
-        {/* Recent Transactions */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-bold text-white mb-4">Recent Transactions</h3>
-          <div className="space-y-3">
-            {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="bg-gray-700/30 border border-gray-600/50 rounded-lg p-3 sm:p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    {transaction.type === 'deposit' ? (
-                      <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
-                    ) : (
-                      <ArrowDownLeft className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />
-                    )}
-                    <span className="text-white font-medium text-xs sm:text-sm capitalize">{transaction.type}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {getStatusIcon(transaction.status)}
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(transaction.status)}`}>
-                      {transaction.status}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-white font-medium text-sm">{transaction.amount} {transaction.currency}</p>
-                <p className="text-gray-400 text-xs">{transaction.date}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
