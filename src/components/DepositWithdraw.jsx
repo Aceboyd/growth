@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -15,24 +15,41 @@ const DepositWithdraw = () => {
   const [amount, setAmount] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [showQR, setShowQR] = useState(false);
+  const [depositAddresses, setDepositAddresses] = useState({
+    BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+    ETH: '0x742c4532a2b2a2b2c2d2e2f2g2h2i2j2k2l2m2n2o2p2',
+    USDT: 'TKzxczxvczxvczxvczxvczxvczxvczxvczxvcz'
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const cryptocurrencies = [
     { symbol: 'BTC', name: 'Bitcoin', network: 'Bitcoin', minDeposit: 0.001, fee: 0.0005 },
     { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum', minDeposit: 0.01, fee: 0.005 },
     { symbol: 'USDT', name: 'Tether', network: 'TRC20', minDeposit: 10, fee: 1 },
-    { symbol: 'BNB', name: 'Binance Coin', network: 'BSC', minDeposit: 0.1, fee: 0.001 },
-    { symbol: 'ADA', name: 'Cardano', network: 'Cardano', minDeposit: 1, fee: 0.17 },
-    { symbol: 'SOL', name: 'Solana', network: 'Solana', minDeposit: 0.01, fee: 0.025 },
   ];
 
-  const depositAddresses = {
-    BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-    ETH: '0x742c4532a2b2a2b2c2d2e2f2g2h2i2j2k2l2m2n2o2p2',
-    USDT: 'TKzxczxvczxvczxvczxvczxvczxvczxvczxvcz',
-    BNB: 'bnb1czxvczxvczxvczxvczxvczxvczxvczxvczxv',
-    ADA: 'addr1qyyzxvczxvczxvczxvczxvczxvczxvczxvczxv',
-    SOL: 'Fzxvczxvczxvczxvczxvczxvczxvczxvczxvczxv'
-  };
+  useEffect(() => {
+    const fetchDepositAddresses = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://your-backend-api.com/deposit-addresses');
+        if (!response.ok) {
+          throw new Error('Failed to fetch deposit addresses');
+        }
+        const data = await response.json();
+        setDepositAddresses(data); // Update with API data if successful
+        setLoading(false);
+      } catch (err) {
+        console.warn('Using fallback addresses due to API error:', err.message);
+        setError('Backend unavailable, using temporary addresses');
+        setLoading(false); // Fallback to mock addresses already in state
+      }
+    };
+
+    fetchDepositAddresses();
+  }, []);
+
   const selectedCrypto = cryptocurrencies.find(crypto => crypto.symbol === selectedCurrency);
 
   const handleCopyAddress = (address) => {
@@ -44,12 +61,21 @@ const DepositWithdraw = () => {
     console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress });
   };
 
+  if (loading) {
+    return <div className="text-white text-center">Loading deposit addresses...</div>;
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sm:p-6">
         <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Deposit & Withdraw</h2>
         <p className="text-gray-300 text-sm sm:text-base">Manage your cryptocurrency deposits and withdrawals</p>
+        {error && (
+          <p className="text-yellow-400 text-sm mt-2">
+            {error}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -127,26 +153,28 @@ const DepositWithdraw = () => {
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    value={depositAddresses[selectedCurrency]}
+                    value={depositAddresses[selectedCurrency] || 'Address not available'}
                     readOnly
                     className="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 text-white font-mono text-xs sm:text-sm"
                   />
                   <button
                     onClick={() => handleCopyAddress(depositAddresses[selectedCurrency])}
                     className="p-2 sm:p-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors"
+                    disabled={!depositAddresses[selectedCurrency]}
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setShowQR(!showQR)}
                     className="p-2 sm:p-3 bg-purple-500 hover:bg-purple-600 rounded-lg text-white transition-colors"
+                    disabled={!depositAddresses[selectedCurrency]}
                   >
                     <QrCode className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {showQR && (
+              {showQR && depositAddresses[selectedCurrency] && (
                 <div className="bg-gray-700/50 border border-gray-600 rounded-lg p-4 sm:p-6 text-center">
                   <div className="w-32 h-32 sm:w-48 sm:h-48 bg-white rounded-lg mx-auto mb-4 flex items-center justify-center">
                     <p className="text-gray-600 text-xs sm:text-sm">QR Code Placeholder</p>
