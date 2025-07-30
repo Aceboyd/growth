@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, 
-  Shield, 
-  Bell, 
-  Mail, 
+import {
+  User,
+  Shield,
+  Bell,
+  Mail,
   Lock,
   Eye,
   EyeOff,
   Smartphone,
   Save,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
+import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://growthsphere.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://growthsph.onrender.com';
 
-const UserSettings = ({ user, setUser }) => {
+const UserSettings = ({ user = {}, setUser }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    email: user.email || '',
+    phone: user.phone || '',
     emailNotifications: true,
     pushNotifications: true,
     smsNotifications: false,
@@ -34,7 +35,6 @@ const UserSettings = ({ user, setUser }) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -46,52 +46,53 @@ const UserSettings = ({ user, setUser }) => {
     const fetchUser = async () => {
       const token = localStorage.getItem('accessToken');
       if (!token) {
+        console.error('No access token found');
         setError('Please log in to continue');
-        setIsLoading(false);
         return;
       }
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/auth/user/`, {
+        console.log('Fetching user with token:', token);
+        const res = await axios.get(`${API_BASE_URL}/auth/users/`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
+          withCredentials: true,
         });
 
-        if (!res.ok) {
-          throw new Error('Unauthorized');
-        }
+        console.log('API response:', res.data);
+        const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : {};
+        const userData = {
+          id: data.id || user.id || 'GS-001',
+          firstName: data.first_name || user.firstName || 'Unknown',
+          lastName: data.last_name || user.lastName || 'User',
+          email: data.email || user.email || '',
+          phone: data.phone_number || user.phone || '',
+          kycStatus: user.kycStatus || 'Not Verified',
+        };
 
-        const data = await res.json();
         setFormData((prev) => ({
           ...prev,
-          firstName: data.first_name || '',
-          lastName: data.last_name || '',
-          email: data.email || '',
-          phone: data.phone_number || '',
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone,
         }));
-        setUser({
-          id: data.pk || 'GS-001',
-          firstName: data.first_name || '',
-          lastName: data.last_name || '',
-          email: data.email || '',
-          phone: data.phone_number || '',
-          kycStatus: user?.kycStatus || 'Verified',
-        });
+        setUser(userData);
       } catch (err) {
-        setError(
-          err.message === 'Failed to fetch'
-            ? 'Unable to connect to the server. Please check your internet connection or try again later.'
-            : err.message
-        );
-        console.error('❌ Failed to fetch user:', err.message);
-      } finally {
-        setIsLoading(false);
+        if (err.response?.status === 401) {
+          console.error('Unauthorized: Invalid or expired token', err.response.data);
+          setError('Session expired. Please log in again.');
+          return;
+        }
+        console.error('Failed to fetch user:', err.message, err.response?.data);
+        setError('Failed to fetch user data. Please try again later.');
       }
     };
 
     fetchUser();
-  }, [setUser, user?.kycStatus]);
+  },);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -129,23 +130,17 @@ const UserSettings = ({ user, setUser }) => {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/auth/change-password/`, {
-          method: 'PUT',
+        await axios.put(`${API_BASE_URL}/auth/change-password/`, {
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword,
+          confirm_password: formData.confirmPassword,
+        }, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            current_password: formData.currentPassword,
-            new_password: formData.newPassword,
-            confirm_password: formData.confirmPassword,
-          }),
+          withCredentials: true,
         });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || errorData.error || 'Failed to change password');
-        }
 
         setFormData((prev) => ({
           ...prev,
@@ -154,31 +149,35 @@ const UserSettings = ({ user, setUser }) => {
           confirmPassword: '',
         }));
       } else if (activeTab === 'profile') {
-        const res = await fetch(`${API_BASE_URL}/api/auth/user/`, {
-          method: 'PUT',
+        const res = await axios.put(`${API_BASE_URL}/auth/users/`, {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone_number: formData.phone,
+        }, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone_number: formData.phone,
-          }),
+          withCredentials: true,
         });
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || 'Failed to update profile');
-        }
+        const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : res.data;
+        const updatedUser = {
+          id: data.id || user.id || 'GS-001',
+          firstName: data.first_name || formData.firstName,
+          lastName: data.last_name || formData.lastName,
+          email: data.email || formData.email,
+          phone: data.phone_number || formData.phone,
+          kycStatus: user.kycStatus || 'Not Verified',
+        };
 
-        const data = await res.json();
-        setUser((prev) => ({
+        setUser(updatedUser);
+        setFormData((prev) => ({
           ...prev,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          email: data.email,
-          phone: data.phone_number,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
         }));
       } else if (activeTab === 'notifications') {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -188,23 +187,17 @@ const UserSettings = ({ user, setUser }) => {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setError(
-        err.message === 'Failed to fetch'
-          ? 'Unable to connect to the server. Please check your internet connection or try again later.'
-          : err.message
-      );
+      if (err.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', err.response.data);
+        setError('Session expired. Please log in again.');
+      } else {
+        console.error('Error saving settings:', err.message, err.response?.data);
+        setError(err.response?.data?.message || 'Failed to save settings. Please try again.');
+      }
       setSaving(false);
-      console.error('❌ Error:', err.message);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 text-white text-center">
-        Loading user data...
-      </div>
-    );
-  }
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
@@ -225,9 +218,9 @@ const UserSettings = ({ user, setUser }) => {
                 </button>
               </div>
               <div className="text-center sm:text-left">
-                <h3 className="text-lg sm:text-xl font-bold text-white">{user.firstName} {user.lastName}</h3>
-                <p className="text-gray-400 text-sm">User ID: {user.id}</p>
-                <p className="text-green-400 text-sm">KYC {user.kycStatus}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-white">{user.firstName || 'Unknown'} {user.lastName || 'User'}</h3>
+                <p className="text-gray-400 text-sm">User ID: {user.id || 'GS-001'}</p>
+                <p className="text-green-400 text-sm">KYC {user.kycStatus || 'Not Verified'}</p>
               </div>
             </div>
 
@@ -276,7 +269,7 @@ const UserSettings = ({ user, setUser }) => {
                 <label className="block text-gray-300 text-sm font-medium mb-2">User ID</label>
                 <input
                   type="text"
-                  value={user.id}
+                  value={user.id || 'GS-001'}
                   disabled
                   className="w-full bg-gray-700/30 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-gray-400 cursor-not-allowed text-sm sm:text-base"
                 />
@@ -441,8 +434,7 @@ const UserSettings = ({ user, setUser }) => {
                       onChange={handleInputChange}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-no
-                    ne peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 

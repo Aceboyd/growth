@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
@@ -7,6 +7,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -21,6 +22,8 @@ const SignUp = () => {
     trades: '',
     agreeToTerms: false,
   });
+
+  const navigate = useNavigate();
 
   const countries = [
     'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
@@ -56,29 +59,69 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
 
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+    // Client-side validation
+    if (!formData.firstName || !formData.lastName) {
+      setErrorMessage('Please provide both first and last names.');
       setIsLoading(false);
       return;
     }
-
-    if (!formData.trades) {
-      alert('Please choose a trade.');
+    if (!formData.email.includes('@') || !formData.email.includes('.')) {
+      setErrorMessage('Please provide a valid email address.');
       setIsLoading(false);
       return;
     }
-
+    if (!formData.phone) {
+      setErrorMessage('Please provide a phone number.');
+      setIsLoading(false);
+      return;
+    }
     if (!formData.country) {
-      alert('Please select a country.');
+      setErrorMessage('Please select a country.');
+      setIsLoading(false);
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+    if (formData.password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long.');
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.investmentGoal) {
+      setErrorMessage('Please select an investment goal.');
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.riskTolerance) {
+      setErrorMessage('Please select a risk tolerance.');
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.accountType) {
+      setErrorMessage('Please select an account type.');
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.trades) {
+      setErrorMessage('Please choose a trade.');
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.agreeToTerms) {
+      setErrorMessage('You must agree to the Terms of Service and Privacy Policy.');
       setIsLoading(false);
       return;
     }
 
     const payload = {
       email: formData.email,
-      password1: formData.password,
-      password2: formData.confirmPassword,
+      password: formData.password,
+      re_password: formData.confirmPassword,
       first_name: formData.firstName,
       last_name: formData.lastName,
       phone_number: formData.phone,
@@ -90,18 +133,18 @@ const SignUp = () => {
     };
 
     try {
-      await axios.post(
-        'https://growthsphere.onrender.com/api/auth/registration/',
-        payload
-      );
-      alert('🎉 Registration successful! Please check your email for a verification link.');
+      await axios.post('https://growthsph.onrender.com/auth/users/', payload);
+      setErrorMessage('');
+      // Redirect to verify email prompt page with email in state
+      navigate('/verify-email', { state: { email: formData.email } });
     } catch (error) {
+      console.error('API Error:', error.response?.data, error.response?.status);
       const data = error.response?.data;
       const detail =
         typeof data === 'object'
           ? Object.values(data).flat().join('\n')
           : `⚠️ Registration failed: ${error.message}`;
-      alert(detail);
+      setErrorMessage(detail);
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +166,9 @@ const SignUp = () => {
         </div>
 
         <div className="bg-gray-50 rounded-xl p-8 border border-gray-200 shadow-lg">
+          {errorMessage && (
+            <div className="text-red-600 text-sm mb-4">{errorMessage}</div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -133,7 +179,8 @@ const SignUp = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
                 />
               </div>
               <div>
@@ -144,7 +191,8 @@ const SignUp = () => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
                 />
               </div>
             </div>
@@ -157,7 +205,8 @@ const SignUp = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
                 placeholder="Email Address"
               />
             </div>
@@ -170,7 +219,8 @@ const SignUp = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
                 placeholder="Phone Number"
               />
             </div>
@@ -182,7 +232,8 @@ const SignUp = () => {
                 value={formData.country}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
               >
                 <option value="">Select Country</option>
                 {countries.map((country) => (
@@ -201,13 +252,15 @@ const SignUp = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg disabled:opacity-50"
                 placeholder="Password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                disabled={isLoading}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 disabled:opacity-50"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -221,13 +274,15 @@ const SignUp = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg disabled:opacity-50"
                 placeholder="Confirm Password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                disabled={isLoading}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 disabled:opacity-50"
               >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -240,7 +295,8 @@ const SignUp = () => {
                 value={formData.investmentGoal}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
               >
                 <option value="">Select Investment Goal</option>
                 <option value="retirement_planning">Retirement Planning</option>
@@ -258,7 +314,8 @@ const SignUp = () => {
                 value={formData.riskTolerance}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
               >
                 <option value="">Select Risk Tolerance</option>
                 <option value="conservative_low_risk">Conservative - Low Risk</option>
@@ -274,7 +331,8 @@ const SignUp = () => {
                 value={formData.accountType}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
               >
                 <option value="">Choose Account Type</option>
                 <option value="starter_plan">Starter Plan</option>
@@ -290,7 +348,8 @@ const SignUp = () => {
                 value={formData.trades}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-50"
               >
                 <option value="">Choose a Trade</option>
                 <option value="crypto">Crypto</option>
@@ -309,7 +368,8 @@ const SignUp = () => {
                 checked={formData.agreeToTerms}
                 onChange={handleInputChange}
                 required
-                className="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                disabled={isLoading}
+                className="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded disabled:opacity-50"
               />
               <label className="ml-3 text-sm text-gray-700">
                 I agree to the{' '}

@@ -25,7 +25,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
       if (!token) return;
 
       try {
-        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+        const res = await fetch('https://growthsph.onrender.com/auth/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -58,7 +58,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
 
   const handleLogout = async () => {
     try {
-      await axios.post('https://growthsphere.onrender.com/api/auth/logout/');
+      await axios.post('https://growthsph.onrender.com/auth/jwt/logout/');
     } catch (error) {
       console.error('Logout error:', error);
     }

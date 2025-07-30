@@ -30,7 +30,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
           return;
         }
 
-        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/transactions/', {
+        const res = await fetch('https://growthsph.onrender.com/details/user/transactions/', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

@@ -35,7 +35,7 @@ const SignIn = () => {
 
     try {
       const res = await axios.post(
-        'https://growthsphere.onrender.com/api/auth/login/',
+        'https://growthsph.onrender.com/auth/jwt/create/',
         {
           email: formData.email,
           password: formData.password
@@ -55,7 +55,7 @@ const SignIn = () => {
 
       // Fetch user profile with access token
       const userRes = await axios.get(
-        'https://growthsphere.onrender.com/api/auth/user/',
+        'https://growthsph.onrender.com/auth/users/',
         {
           headers: {
             Authorization: `Bearer ${access}`

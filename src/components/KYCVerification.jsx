@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dunqe09gc/image/upload';
 const UPLOAD_PRESET = 'jayjay';
-const API_BASE_URL = 'https://growthsphere.onrender.com';
+const API_BASE_URL = '';
 
 const StatusCard = ({ icon, color, title, message }) => (
   <div className="max-w-xl mx-auto text-center bg-gray-800 p-8 rounded-xl border border-gray-700">
@@ -43,7 +43,7 @@ const KYCVerification = ({ user, setUser }) => {
       }
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/auth/user/`, {
+        const response = await axios.get(`${API_BASE_URL}/auth/users/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -106,7 +106,7 @@ const KYCVerification = ({ user, setUser }) => {
       }
 
       await axios.post(
-        `${API_BASE_URL}/api/auth/kyc-upload/`,
+        `${API_BASE_URL}/details/kyc-upload/`,
         {
           id_type: formData.idType,
           id_front_url: formData.idFrontUrl,

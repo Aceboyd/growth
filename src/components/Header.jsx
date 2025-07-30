@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, Search, User, Menu, Bitcoin } from 'lucide-react';
+import axios from 'axios';
 
 const Header = ({ setSidebarOpen }) => {
   const [user, setUser] = useState({ first_name: '', last_name: '', id: '' });
@@ -7,27 +8,35 @@ const Header = ({ setSidebarOpen }) => {
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('accessToken');
-      if (!token) return;
+      if (!token) {
+        console.error('❌ No access token found in localStorage');
+        return;
+      }
 
       try {
-        const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
+        console.log('Fetching user with token:', token); // Debug token
+        const res = await axios.get('https://growthsph.onrender.com/auth/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
+          withCredentials: true,
         });
 
-        if (!res.ok) {
-          throw new Error('Unauthorized');
-        }
-
-        const data = await res.json();
+        console.log('API response:', res.data); // Debug response data
+        // Since backend returns an array, take the first user (assuming it’s the authenticated user)
+        const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : {};
         setUser({
-          first_name: data.first_name,
-          last_name: data.last_name,
+          first_name: data.first_name || 'Unknown',
+          last_name: data.last_name || 'User',
           id: data.id || 'GS-001',
         });
       } catch (err) {
-        console.error('❌ Failed to fetch user:', err.message);
+        if (err.response?.status === 401) {
+          console.error('❌ Unauthorized: Invalid or expired token', err.response.data);
+          return;
+        }
+        console.error('❌ Failed to fetch user:', err.message, err.response?.data);
       }
     };
 

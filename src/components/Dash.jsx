@@ -10,11 +10,12 @@ import {
   Wallet,
   RefreshCw,
 } from 'lucide-react';
+import axios from 'axios';
 
 const Dashboard = ({ setCurrentPage }) => {
   const [showBalance, setShowBalance] = useState(true);
   const [coins, setCoins] = useState([]);
-  const [transactions, setTransactions] = useState([]); // ✅ Real transactions
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [kycLoading, setKycLoading] = useState(true);
   const [finances, setFinances] = useState({
@@ -23,10 +24,12 @@ const Dashboard = ({ setCurrentPage }) => {
     total_profit: '0.00',
   });
   const [user, setUser] = useState({
-    first_name: '',
-    last_name: '',
-    kycStatus: '',
     id: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    kycStatus: 'Not Verified',
   });
 
   const overviewStats = [
@@ -59,29 +62,20 @@ const Dashboard = ({ setCurrentPage }) => {
         return;
       }
 
-      const res = await fetch('https://growthsphere.onrender.com/api/auth/user/transactions/', {
-        method: 'GET',
+      const res = await axios.get('https://growthsph.onrender.com/details/user/transactions/', {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        credentials: 'include',
+        withCredentials: true,
       });
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized: Invalid or expired token');
-          setCurrentPage('login');
-        } else if (res.status === 403) {
-          console.error('Access forbidden: KYC verification may be required');
-          alert('Please complete KYC verification to access your transactions.');
-          setCurrentPage('kyc-verification');
-        }
-        throw new Error(`Failed to fetch transactions: ${res.status}`);
+      if (!res.data) {
+        throw new Error('No transaction data returned');
       }
 
-      const data = await res.json();
       setTransactions(
-        data.map((tx) => ({
+        res.data.map((tx) => ({
           id: tx.transaction_id || 'N/A',
           type: tx.type || 'unknown',
           amount: tx.amount || 0,
@@ -92,20 +86,28 @@ const Dashboard = ({ setCurrentPage }) => {
         }))
       );
     } catch (error) {
-      console.error('Error fetching transactions:', error.message);
+      if (error.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', error.response.data);
+        setCurrentPage('login');
+      } else if (error.response?.status === 403) {
+        console.error('Access forbidden: KYC verification may be required', error.response.data);
+        alert('Please complete KYC verification to access your transactions.');
+        setCurrentPage('kyc-verification');
+      } else {
+        console.error('Error fetching transactions:', error.message, error.response?.data);
+      }
     }
   };
 
   const fetchCoins = async () => {
     try {
-      const res = await fetch(
+      const res = await axios.get(
         'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,cardano,solana&order=market_cap_desc'
       );
-      const data = await res.json();
-      setCoins(data);
+      setCoins(res.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching coins:', error);
+      console.error('Error fetching coins:', error.message, error.response?.data);
     }
   };
 
@@ -118,109 +120,112 @@ const Dashboard = ({ setCurrentPage }) => {
         return;
       }
 
-      const res = await fetch('https://growthsphere.onrender.com/api/auth/user/finances/', {
+      const res = await axios.get('https://growthsph.onrender.com/details/user/finance/', {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        credentials: 'include',
+        withCredentials: true,
       });
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized: Invalid or expired token');
-          setCurrentPage('login');
-        } else if (res.status === 403) {
-          console.error('Access forbidden: KYC verification may be required');
-          alert('Please complete KYC verification to access your finances.');
-          setCurrentPage('kyc-verification');
-        }
-        throw new Error(`Failed to fetch finances: ${res.status}`);
-      }
-
-      const data = await res.json();
-      if (data && data.length > 0) {
-        setFinances(data[0]);
+      if (res.data && res.data.length > 0) {
+        setFinances(res.data[0]);
       } else {
         console.warn('No finance data returned');
       }
     } catch (error) {
-      console.error('Error fetching finances:', error.message);
+      if (error.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', error.response.data);
+        setCurrentPage('login');
+      } else if (error.response?.status === 403) {
+        console.error('Access forbidden: KYC verification may be required', error.response.data);
+        alert('Please complete KYC verification to access your finances.');
+        setCurrentPage('kyc-verification');
+      } else {
+        console.error('Error fetching finances:', error.message, error.response?.data);
+      }
     }
   };
 
   const fetchUser = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.error('No access token found');
-      return;
-    }
-
     try {
-      const res = await fetch('https://growthsphere.onrender.com/api/auth/user/', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized: Invalid or expired token');
-          setCurrentPage('login');
-        }
-        throw new Error(`Failed to fetch user: ${res.status}`);
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found, redirecting to login');
+        setCurrentPage('login');
+        return;
       }
 
-      const data = await res.json();
-      setUser((prev) => ({
-        ...prev,
-        first_name: data.first_name || '',
-        last_name: data.last_name || '',
+      console.log('Fetching user with token:', token);
+      const res = await axios.get('https://growthsph.onrender.com/auth/users/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
+      console.log('API response:', res.data);
+      const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : {};
+      setUser({
         id: data.id || 'GS-001',
-      }));
-    } catch (err) {
-      console.error('❌ Failed to fetch user:', err.message);
+        firstName: data.first_name || 'Unknown',
+        lastName: data.last_name || 'User',
+        email: data.email || '',
+        phone: data.phone_number || '',
+        kycStatus: user.kycStatus || 'Not Verified',
+      });
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', error.response.data);
+        setCurrentPage('login');
+        return;
+      }
+      console.error('Failed to fetch user:', error.message, error.response?.data);
+      setUser({
+        id: 'GS-001',
+        firstName: 'Unknown',
+        lastName: 'User',
+        email: '',
+        phone: '',
+        kycStatus: 'Not Verified',
+      });
     }
   };
 
   const fetchKYCStatus = async () => {
     setKycLoading(true);
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.error('No access token found');
-      setUser((prev) => ({ ...prev, kycStatus: 'Not Verified' }));
-      setKycLoading(false);
-      return;
-    }
-
     try {
-      const res = await fetch(`https://growthsphere.onrender.com/api/auth/kyc-upload/?t=${Date.now()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found');
         setUser((prev) => ({ ...prev, kycStatus: 'Not Verified' }));
-        if (res.status === 401) {
-          console.error('Unauthorized: Invalid or expired token');
-          setCurrentPage('login');
-        }
-        setKycLoading(false);
         return;
       }
 
-      const kycData = await res.json();
-      if (kycData && kycData.kyc_data && kycData.kyc_data.kyc_status) {
+      const res = await axios.get(`https://growthsph.onrender.com/details/kyc-upload/?t=${Date.now()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.data && res.data.kyc_data && res.data.kyc_data.kyc_status) {
         setUser((prev) => ({
           ...prev,
-          kycStatus: kycData.kyc_data.kyc_status,
+          kycStatus: res.data.kyc_data.kyc_status,
         }));
       } else {
         setUser((prev) => ({ ...prev, kycStatus: 'Not Verified' }));
       }
     } catch (error) {
-      console.error('Error fetching KYC status:', error.message);
-      setUser((prev) => ({ ...prev, kycStatus: 'Not Verified' }));
+      if (error.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', error.response.data);
+        setCurrentPage('login');
+      } else {
+        console.error('Error fetching KYC status:', error.message, error.response?.data);
+        setUser((prev) => ({ ...prev, kycStatus: 'Not Verified' }));
+      }
     } finally {
       setKycLoading(false);
     }
@@ -235,7 +240,7 @@ const Dashboard = ({ setCurrentPage }) => {
 
     const kycPollInterval = setInterval(fetchKYCStatus, 30000);
     return () => clearInterval(kycPollInterval);
-  }, []);
+  }, [setCurrentPage]);
 
   return (
     <div className="space-y-6">
@@ -244,7 +249,7 @@ const Dashboard = ({ setCurrentPage }) => {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="text-2xl font-bold">
-              Welcome back, {user.first_name} {user.last_name}!
+              Welcome back, {user.firstName} {user.lastName}!
             </h2>
             <p className="text-blue-100 text-sm">
               Your portfolio is performing well today

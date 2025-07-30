@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import Dashboard from './pages/Dashboard';
 import VerifyEmail from './pages/VerifyEmail';
+import VerifyEmailPrompt from './pages/VerifyEmailPrompt'; // New component
 
 function App() {
   return (
@@ -13,9 +14,10 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/email-verified" element={<VerifyEmail />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/dash" element={<Dashboard />} />
+          <Route path="/verify-email" element={<VerifyEmailPrompt />} />
+          <Route path="/activate/:uid/:token" element={<VerifyEmail />} />
         </Routes>
       </div>
     </Router>

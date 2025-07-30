@@ -8,8 +8,11 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
+import axios from 'axios';
 
-const DepositWithdraw = () => {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://growthsph.onrender.com';
+
+const DepositWithdraw = ({ setCurrentPage }) => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [selectedCurrency, setSelectedCurrency] = useState('BTC');
   const [amount, setAmount] = useState('');
@@ -20,7 +23,6 @@ const DepositWithdraw = () => {
     ETH: '0x742c4532a2b2a2b2c2d2e2f2g2h2i2j2k2l2m2n2o2p2',
     USDT: 'TKzxczxvczxvczxvczxvczxvczxvczxvczxvcz'
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const cryptocurrencies = [
@@ -29,26 +31,48 @@ const DepositWithdraw = () => {
     { symbol: 'USDT', name: 'Tether', network: 'TRC20', minDeposit: 10, fee: 1 },
   ];
 
-  useEffect(() => {
-    const fetchDepositAddresses = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('https://your-backend-api.com/deposit-addresses');
-        if (!response.ok) {
-          throw new Error('Failed to fetch deposit addresses');
-        }
-        const data = await response.json();
-        setDepositAddresses(data); // Update with API data if successful
-        setLoading(false);
-      } catch (err) {
-        console.warn('Using fallback addresses due to API error:', err.message);
-        setError('Backend unavailable, using temporary addresses');
-        setLoading(false); // Fallback to mock addresses already in state
+  const fetchDepositAddresses = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found, redirecting to login');
+        setError('Please log in to continue');
+        setCurrentPage('login');
+        return;
       }
-    };
 
+      const response = await axios.get(`${API_BASE_URL}/details/wallet/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
+      const data = response.data || {};
+      setDepositAddresses({
+        BTC: data.btc || depositAddresses.BTC,
+        ETH: data.eth || depositAddresses.ETH,
+        USDT: data.usdt || depositAddresses.USDT,
+      });
+      setError(null);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        console.error('Unauthorized: Invalid or expired token', err.response?.data);
+        setError('Session expired. Please log in again.');
+        setCurrentPage('login');
+      } else {
+        console.warn('Failed to fetch deposit addresses:', err.message, err.response?.data);
+        setError('Unable to fetch wallet addresses. Using default addresses.');
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchDepositAddresses();
-  }, []);
+    const pollInterval = setInterval(fetchDepositAddresses, 30000); // Poll every 30 seconds
+    return () => clearInterval(pollInterval);
+  },);
 
   const selectedCrypto = cryptocurrencies.find(crypto => crypto.symbol === selectedCurrency);
 
@@ -60,10 +84,6 @@ const DepositWithdraw = () => {
     e.preventDefault();
     console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress });
   };
-
-  if (loading) {
-    return <div className="text-white text-center">Loading deposit addresses...</div>;
-  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
