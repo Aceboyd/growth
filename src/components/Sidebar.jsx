@@ -9,7 +9,7 @@ import {
   LogOut,
   Bitcoin,
   X,
-  User
+  User,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -22,30 +22,42 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('accessToken');
-      if (!token) return;
+      if (!token) {
+        console.log('No access token, skipping user fetch');
+        navigate('/signin', { replace: true });
+        return;
+      }
 
       try {
-        const res = await fetch('https://growthsph.onrender.com/auth/users/', {
+        console.log('Fetching user with token:', token);
+        const res = await axios.get('https://growthsph.onrender.com/auth/users/me/', {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
 
-        if (!res.ok) throw new Error('Unauthorized');
-
-        const data = await res.json();
+        console.log('API response:', res.data);
+        const data = res.data || {};
         setUser({
-          first_name: data.first_name,
-          last_name: data.last_name,
+          first_name: data.first_name || 'Unknown',
+          last_name: data.last_name || 'User',
           id: data.id || 'GS-001',
         });
       } catch (err) {
-        console.error('❌ Failed to fetch user:', err.message);
+        console.error('Failed to fetch user:', err);
+        if (err.response?.status === 401) {
+          console.error('Unauthorized: Invalid or expired token');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          navigate('/signin', { replace: true });
+        }
       }
     };
 
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,19 +65,17 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
     { id: 'deposit-withdraw', label: 'Deposit & Withdraw', icon: ArrowUpDown },
     { id: 'transactions', label: 'Transaction History', icon: History },
     { id: 'market', label: 'Market Trades', icon: TrendingUp },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const handleLogout = async () => {
-    try {
-      await axios.post('https://growthsph.onrender.com/auth/jwt/logout/');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-    setUser(null);
+  const handleLogout = () => {
+    console.log('Logging out, clearing localStorage');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     setCurrentPage('dashboard');
     setSidebarOpen(false);
-    navigate('/signin');
+    navigate('/signin', { replace: true });
   };
 
   const handleMenuClick = (itemId) => {
@@ -95,7 +105,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentPage(item.id)}
+                onClick={() => handleMenuClick(item.id)}
                 className={`w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-700/50 transition-colors ${
                   currentPage === item.id
                     ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
