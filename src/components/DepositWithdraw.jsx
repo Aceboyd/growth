@@ -19,11 +19,12 @@ const DepositWithdraw = ({ setCurrentPage }) => {
   const [walletAddress, setWalletAddress] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [depositAddresses, setDepositAddresses] = useState({
-    BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-    ETH: '0x742c4532a2b2a2b2c2d2e2f2g2h2i2j2k2l2m2n2o2p2',
-    USDT: 'TKzxczxvczxvczxvczxvczxvczxvczxvczxvcz'
+    BTC: 'Address not available',
+    ETH: 'Address not available',
+    USDT: 'Address not available'
   });
   const [error, setError] = useState(null);
+  const [isPolling, setIsPolling] = useState(true);
 
   const cryptocurrencies = [
     { symbol: 'BTC', name: 'Bitcoin', network: 'Bitcoin', minDeposit: 0.001, fee: 0.0005 },
@@ -38,9 +39,11 @@ const DepositWithdraw = ({ setCurrentPage }) => {
         console.error('No access token found, redirecting to login');
         setError('Please log in to continue');
         setCurrentPage('login');
+        setIsPolling(false); // Stop polling if unauthorized
         return;
       }
 
+      console.log('Fetching wallet addresses from:', `${API_BASE_URL}/details/wallet/`);
       const response = await axios.get(`${API_BASE_URL}/details/wallet/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,34 +53,77 @@ const DepositWithdraw = ({ setCurrentPage }) => {
       });
 
       const data = response.data || {};
-      setDepositAddresses({
-        BTC: data.btc || depositAddresses.BTC,
-        ETH: data.eth || depositAddresses.ETH,
-        USDT: data.usdt || depositAddresses.USDT,
-      });
+      console.log('API response:', data);
+
+      // Handle potential variations in API response structure
+      const btcAddress = data.btc || data.BTC || data.wallets?.btc || data.wallets?.BTC || 'Address not available';
+      const ethAddress = data.eth || data.ETH || data.wallets?.eth || data.wallets?.ETH || 'Address not available';
+      const usdtAddress = data.usdt || data.USDT || data.wallets?.usdt || data.wallets?.USDT || 'Address not available';
+
+      // Validate addresses (basic check for non-empty strings)
+      const newAddresses = {
+        BTC: btcAddress && typeof btcAddress === 'string' && btcAddress.trim() !== '' ? btcAddress : 'Address not available',
+        ETH: ethAddress && typeof ethAddress === 'string' && ethAddress.trim() !== '' ? ethAddress : 'Address not available',
+        USDT: usdtAddress && typeof usdtAddress === 'string' && usdtAddress.trim() !== '' ? usdtAddress : 'Address not available',
+      };
+
+      console.log('Processed addresses:', newAddresses);
+
+      setDepositAddresses(newAddresses);
+
+      // Stop polling if all addresses are valid to reduce API load
+      if (
+        newAddresses.BTC !== 'Address not available' &&
+        newAddresses.ETH !== 'Address not available' &&
+        newAddresses.USDT !== 'Address not available'
+      ) {
+        console.log('Valid addresses received, stopping polling');
+        setIsPolling(false);
+      }
+
       setError(null);
     } catch (err) {
+      console.error('Failed to fetch deposit addresses:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
+
+      let errorMessage = 'Unable to fetch wallet addresses. Please try again later.';
       if (err.response?.status === 401) {
-        console.error('Unauthorized: Invalid or expired token', err.response?.data);
-        setError('Session expired. Please log in again.');
+        errorMessage = 'Session expired. Please log in again.';
         setCurrentPage('login');
-      } else {
-        console.warn('Failed to fetch deposit addresses:', err.message, err.response?.data);
-        setError('Unable to fetch wallet addresses. Using default addresses.');
+        setIsPolling(false);
+      } else if (err.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error. Please check your connection.';
       }
+
+      setError(errorMessage);
+      // Retain existing addresses to avoid UI flicker
     }
   };
 
   useEffect(() => {
     fetchDepositAddresses();
-    const pollInterval = setInterval(fetchDepositAddresses, 30000); // Poll every 30 seconds
+    let pollInterval;
+    if (isPolling) {
+      pollInterval = setInterval(fetchDepositAddresses, 30000); // Poll every 30 seconds
+    }
     return () => clearInterval(pollInterval);
-  },);
+  }, [isPolling]);
 
   const selectedCrypto = cryptocurrencies.find(crypto => crypto.symbol === selectedCurrency);
 
   const handleCopyAddress = (address) => {
-    navigator.clipboard.writeText(address);
+    if (address && address !== 'Address not available') {
+      navigator.clipboard.writeText(address);
+      console.log(`Copied address: ${address}`);
+      setError(null);
+    } else {
+      setError('No valid address to copy');
+    }
   };
 
   const handleSubmit = (e) => {
@@ -173,28 +219,28 @@ const DepositWithdraw = ({ setCurrentPage }) => {
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    value={depositAddresses[selectedCurrency] || 'Address not available'}
+                    value={depositAddresses[selectedCurrency]}
                     readOnly
                     className="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 text-white font-mono text-xs sm:text-sm"
                   />
                   <button
                     onClick={() => handleCopyAddress(depositAddresses[selectedCurrency])}
                     className="p-2 sm:p-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors"
-                    disabled={!depositAddresses[selectedCurrency]}
+                    disabled={depositAddresses[selectedCurrency] === 'Address not available'}
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setShowQR(!showQR)}
                     className="p-2 sm:p-3 bg-purple-500 hover:bg-purple-600 rounded-lg text-white transition-colors"
-                    disabled={!depositAddresses[selectedCurrency]}
+                    disabled={depositAddresses[selectedCurrency] === 'Address not available'}
                   >
                     <QrCode className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {showQR && depositAddresses[selectedCurrency] && (
+              {showQR && depositAddresses[selectedCurrency] !== 'Address not available' && (
                 <div className="bg-gray-700/50 border border-gray-600 rounded-lg p-4 sm:p-6 text-center">
                   <div className="w-32 h-32 sm:w-48 sm:h-48 bg-white rounded-lg mx-auto mb-4 flex items-center justify-center">
                     <p className="text-gray-600 text-xs sm:text-sm">QR Code Placeholder</p>

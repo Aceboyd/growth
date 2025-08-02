@@ -34,6 +34,7 @@ const UserSettings = ({ user = {}, setUser }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false); // New state for password success
   const [error, setError] = useState(null);
 
   const tabs = [
@@ -92,7 +93,7 @@ const UserSettings = ({ user = {}, setUser }) => {
     };
 
     fetchUser();
-  },);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -105,6 +106,8 @@ const UserSettings = ({ user = {}, setUser }) => {
   const handleSave = async () => {
     setSaving(true);
     setError(null);
+    setSaved(false); // Reset general saved state
+    setPasswordSuccess(false); // Reset password success state
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setError('Please log in to continue');
@@ -130,7 +133,7 @@ const UserSettings = ({ user = {}, setUser }) => {
           return;
         }
 
-        await axios.put(`${API_BASE_URL}/auth/change-password/`, {
+        await axios.put(`${API_BASE_URL}/details/change-password/`, {
           current_password: formData.currentPassword,
           new_password: formData.newPassword,
           confirm_password: formData.confirmPassword,
@@ -148,6 +151,8 @@ const UserSettings = ({ user = {}, setUser }) => {
           newPassword: '',
           confirmPassword: '',
         }));
+        setPasswordSuccess(true); // Show password-specific success message
+        setTimeout(() => setPasswordSuccess(false), 3000); // Hide after 3 seconds
       } else if (activeTab === 'profile') {
         const res = await axios.put(`${API_BASE_URL}/auth/users/`, {
           first_name: formData.firstName,
@@ -179,13 +184,15 @@ const UserSettings = ({ user = {}, setUser }) => {
           email: updatedUser.email,
           phone: updatedUser.phone,
         }));
+        setSaved(true); // Show general success message for profile
+        setTimeout(() => setSaved(false), 3000);
       } else if (activeTab === 'notifications') {
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        setSaved(true); // Show general success message for notifications
+        setTimeout(() => setSaved(false), 3000);
       }
 
       setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       if (err.response?.status === 401) {
         console.error('Unauthorized: Invalid or expired token', err.response.data);
@@ -284,6 +291,12 @@ const UserSettings = ({ user = {}, setUser }) => {
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
                 {error}
+              </div>
+            )}
+            {passwordSuccess && (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-green-400 text-sm flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>Password changed successfully</span>
               </div>
             )}
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
