@@ -1,6 +1,6 @@
 import React from 'react';
-import certificate1 from '../assets/image/certificate1.png';
-import certificate2 from '../assets/image/certificate2.jpg';
+import certificate1 from '../assets/image/certificate1.png?format=webp&w=300;600;1200';
+import certificate2 from '../assets/image/certificate2.jpg?format=webp&w=300;600;1200';
 
 const CertificatesSection = () => {
   return (

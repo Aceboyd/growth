@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import DashboardContent from '../components/Dash';
-import KYCVerification from '../components/KYCVerification';
-import DepositWithdraw from '../components/DepositWithdraw';
-import TransactionHistory from '../components/TransactionHistory';
-import MarketTrades from '../components/MarketTrades';
-import UserSettings from '../components/UserSettings';
-import Accounts from '../components/Accounts';
+
+// Lazy-load components
+const DashboardContent = lazy(() => import('../components/Dash'));
+const KYCVerification = lazy(() => import('../components/KYCVerification'));
+const DepositWithdraw = lazy(() => import('../components/DepositWithdraw'));
+const TransactionHistory = lazy(() => import('../components/TransactionHistory'));
+const MarketTrades = lazy(() => import('../components/MarketTrades'));
+const UserSettings = lazy(() => import('../components/UserSettings'));
+const Accounts = lazy(() => import('../components/Accounts'));
 
 function Dash() {
-  const [currentPage, setCurrentPage] = useState('Dash'); // 👈 Show KYC first for testing
+  const [currentPage, setCurrentPage] = useState('dashboard'); // Updated default
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [user, setUser] = useState({
     id: 'CRY789456',
     name: 'Alex Johnson',
     email: 'alex.johnson@email.com',
-    kycStatus: 'unverified', // 👈 Start as unverified to show the KYC form
-    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=1'
+    kycStatus: 'unverified',
+    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=1',
   });
 
   const renderCurrentPage = () => {
@@ -33,7 +35,7 @@ function Dash() {
         return <TransactionHistory />;
       case 'market':
         return <MarketTrades />;
-         case 'accounts':
+      case 'accounts':
         return <Accounts />;
       case 'settings':
         return <UserSettings user={user} setUser={setUser} />;
@@ -55,11 +57,11 @@ function Dash() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header user={user} setSidebarOpen={setSidebarOpen} />
         <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
-          {renderCurrentPage()}
+          <Suspense fallback={<div className="text-white">Loading...</div>}>
+            {renderCurrentPage()}
+          </Suspense>
         </main>
       </div>
-
-      {/* Mobile overlay for sidebar */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"

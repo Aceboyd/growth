@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import Navigation from '../components/Navigation';
 import HeroSection from '../components/HeroSection';
 import InvestmentSection from '../components/InvestmentSection';
 import InvestmentTypes from '../components/InvestmentTypes';
-import ExchangeRateMatrix from '../components/ExchangeRateMatrix';
-import SecuritySection from '../components/SecuritySection';
-import HowItWorks from '../components/HowItWorks';
-import PricingSection from '../components/PricingSection';
-import AboutUs from '../components/AboutUs';
-import CertificatesSection from '../components/CertificatesSection';
-import Testimony from '../components/Testimony';
-import FAQSection from '../components/FAQSection';
-import Footer from '../components/Footer';
-import TestimonialPopup from '../components/TestimonialPopup';
+
+// Lazy-load components below the fold
+const ExchangeRateMatrix = lazy(() => import('../components/ExchangeRateMatrix'));
+const SecuritySection = lazy(() => import('../components/SecuritySection'));
+const HowItWorks = lazy(() => import('../components/HowItWorks'));
+const PricingSection = lazy(() => import('../components/PricingSection'));
+const AboutUs = lazy(() => import('../components/AboutUs'));
+const CertificatesSection = lazy(() => import('../components/CertificatesSection'));
+const Testimony = lazy(() => import('../components/Testimony'));
+const FAQSection = lazy(() => import('../components/FAQSection'));
+const Footer = lazy(() => import('../components/Footer'));
+const TestimonialPopup = lazy(() => import('../components/TestimonialPopup'));
 
 const LandingPage = () => {
   return (
@@ -21,18 +23,20 @@ const LandingPage = () => {
       <HeroSection />
       <InvestmentSection />
       <InvestmentTypes />
-      <section id="forex-matrix" className="py-12 px-4">
-        <ExchangeRateMatrix />
-      </section>
-      <SecuritySection />
-      <HowItWorks />
-      <PricingSection />
-      <AboutUs />
-      <CertificatesSection />
-      <Testimony />
-      <FAQSection />
-      <Footer />
-      <TestimonialPopup />
+      <Suspense fallback={<div className="text-center py-12">Loading...</div>}>
+        <section id="forex-matrix" className="py-12 px-4">
+          <ExchangeRateMatrix />
+        </section>
+        <SecuritySection />
+        <HowItWorks />
+        <PricingSection />
+        <AboutUs />
+        <CertificatesSection />
+        <Testimony />
+        <FAQSection />
+        <Footer />
+        <TestimonialPopup />
+      </Suspense>
     </div>
   );
 };
