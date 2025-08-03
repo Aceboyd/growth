@@ -7,6 +7,7 @@ import DepositWithdraw from '../components/DepositWithdraw';
 import TransactionHistory from '../components/TransactionHistory';
 import MarketTrades from '../components/MarketTrades';
 import UserSettings from '../components/UserSettings';
+import Accounts from '../components/Accounts';
 
 function Dash() {
   const [currentPage, setCurrentPage] = useState('Dash'); // 👈 Show KYC first for testing
@@ -32,6 +33,8 @@ function Dash() {
         return <TransactionHistory />;
       case 'market':
         return <MarketTrades />;
+         case 'accounts':
+        return <Accounts />;
       case 'settings':
         return <UserSettings user={user} setUser={setUser} />;
       default:

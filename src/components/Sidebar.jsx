@@ -10,6 +10,7 @@ import {
   Bitcoin,
   X,
   User,
+  Wallet,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -29,30 +30,29 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
       }
 
       try {
-        console.log('Fetching user with token:', token);
-        const res = await axios.get('https://growthsph.onrender.com/auth/users/me/', {
+        console.log('Fetching user with token:', token); // Debug token
+        const res = await axios.get('https://growthsph.onrender.com/auth/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
+          withCredentials: true,
         });
 
-        console.log('API response:', res.data);
-        const data = res.data || {};
+        console.log('API response:', res.data); // Debug response data
+        // Since backend returns an array, take the first user (assuming it’s the authenticated user)
+        const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : {};
         setUser({
           first_name: data.first_name || 'Unknown',
           last_name: data.last_name || 'User',
           id: data.id || 'GS-001',
         });
       } catch (err) {
-        console.error('Failed to fetch user:', err);
         if (err.response?.status === 401) {
-          console.error('Unauthorized: Invalid or expired token');
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
-          navigate('/signin', { replace: true });
+          console.error('❌ Unauthorized: Invalid or expired token', err.response.data);
+          return;
         }
+        console.error('❌ Failed to fetch user:', err.message, err.response?.data);
       }
     };
 
@@ -65,6 +65,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
     { id: 'deposit-withdraw', label: 'Deposit & Withdraw', icon: ArrowUpDown },
     { id: 'transactions', label: 'Transaction History', icon: History },
     { id: 'market', label: 'Market Trades', icon: TrendingUp },
+     { id: 'accounts', label: 'Accounts', icon: Wallet },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

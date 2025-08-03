@@ -9,10 +9,11 @@ import {
   Clock
 } from 'lucide-react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://growthsph.onrender.com';
 
-const DepositWithdraw = ({ setCurrentPage }) => {
+const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [selectedCurrency, setSelectedCurrency] = useState('BTC');
   const [amount, setAmount] = useState('');
@@ -39,7 +40,7 @@ const DepositWithdraw = ({ setCurrentPage }) => {
         console.error('No access token found, redirecting to login');
         setError('Please log in to continue');
         setCurrentPage('login');
-        setIsPolling(false); // Stop polling if unauthorized
+        setIsPolling(false);
         return;
       }
 
@@ -55,12 +56,10 @@ const DepositWithdraw = ({ setCurrentPage }) => {
       const data = response.data || {};
       console.log('API response:', data);
 
-      // Handle potential variations in API response structure
       const btcAddress = data.btc || data.BTC || data.wallets?.btc || data.wallets?.BTC || 'Address not available';
       const ethAddress = data.eth || data.ETH || data.wallets?.eth || data.wallets?.ETH || 'Address not available';
       const usdtAddress = data.usdt || data.USDT || data.wallets?.usdt || data.wallets?.USDT || 'Address not available';
 
-      // Validate addresses (basic check for non-empty strings)
       const newAddresses = {
         BTC: btcAddress && typeof btcAddress === 'string' && btcAddress.trim() !== '' ? btcAddress : 'Address not available',
         ETH: ethAddress && typeof ethAddress === 'string' && ethAddress.trim() !== '' ? ethAddress : 'Address not available',
@@ -71,7 +70,6 @@ const DepositWithdraw = ({ setCurrentPage }) => {
 
       setDepositAddresses(newAddresses);
 
-      // Stop polling if all addresses are valid to reduce API load
       if (
         newAddresses.BTC !== 'Address not available' &&
         newAddresses.ETH !== 'Address not available' &&
@@ -101,7 +99,6 @@ const DepositWithdraw = ({ setCurrentPage }) => {
       }
 
       setError(errorMessage);
-      // Retain existing addresses to avoid UI flicker
     }
   };
 
@@ -109,7 +106,7 @@ const DepositWithdraw = ({ setCurrentPage }) => {
     fetchDepositAddresses();
     let pollInterval;
     if (isPolling) {
-      pollInterval = setInterval(fetchDepositAddresses, 30000); // Poll every 30 seconds
+      pollInterval = setInterval(fetchDepositAddresses, 30000);
     }
     return () => clearInterval(pollInterval);
   }, [isPolling]);
@@ -120,15 +117,88 @@ const DepositWithdraw = ({ setCurrentPage }) => {
     if (address && address !== 'Address not available') {
       navigator.clipboard.writeText(address);
       console.log(`Copied address: ${address}`);
+      toast.success('Address copied to clipboard!');
       setError(null);
     } else {
       setError('No valid address to copy');
+      toast.error('No valid address to copy');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress });
+
+    if (activeTab === 'withdraw') {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          toast.error('Please log in to withdraw');
+          setCurrentPage('login');
+          return;
+        }
+
+        // Validate amount
+        const parsedAmount = parseFloat(amount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+          toast.error('Please enter a valid amount');
+          return;
+        }
+        if (parsedAmount < selectedCrypto.minDeposit) {
+          toast.error(`Minimum withdrawal is ${selectedCrypto.minDeposit} ${selectedCurrency}`);
+          return;
+        }
+
+        // Send withdrawal request
+        // const response = await axios.post(
+        //   `${API_BASE_URL}/auth/withdraw/`,
+        //   {
+        //     currency: selectedCurrency,
+        //     amount: parsedAmount,
+        //     wallet_address: walletAddress,
+        //   },
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //       'Content-Type': 'application/json',
+        //     },
+        //     withCredentials: true,
+        //   }
+        // );
+
+        // Add transaction to local state
+        const newTransaction = {
+          id: `temp-${Date.now()}`, // Temporary ID until API provides one
+          type: 'withdrawal',
+          currency: selectedCurrency,
+          amount: parsedAmount,
+          wallet_address: walletAddress,
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+        };
+
+        setTransactions((prev) => [newTransaction, ...prev]);
+
+        // Show success message
+        toast.success(`Withdrawal of ${parsedAmount} ${selectedCurrency} initiated successfully!`);
+
+        // Reset form
+        setAmount('');
+        setWalletAddress('');
+      } catch (err) {
+        console.error('Withdrawal error:', err);
+        let errorMessage = 'Failed to process withdrawal. Please try again.';
+        if (err.response?.status === 401) {
+          errorMessage = 'Session expired. Please log in again.';
+          setCurrentPage('login');
+        } else if (err.response?.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (err.code === 'ERR_NETWORK') {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        toast.error(errorMessage);
+      }
+    }
   };
 
   return (

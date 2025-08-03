@@ -76,7 +76,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
         return <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />;
       case 'withdrawal':
         return <ArrowDownLeft className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />;
-      case 'trade':
+      case 'mining':
         return <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />;
       default:
         return null;
@@ -179,7 +179,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
             <option value="all">All Types</option>
             <option value="deposit">Deposits</option>
             <option value="withdrawal">Withdrawals</option>
-            <option value="trade">Trades</option>
+            <option value="mining">mining</option>
           </select>
 
           {/* Status Filter */}

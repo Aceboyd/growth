@@ -439,9 +439,10 @@ const Dashboard = ({ setCurrentPage }) => {
                       <ArrowUpRight className="w-5 h-5" />
                     ) : tx.type === 'withdrawal' ? (
                       <ArrowDownLeft className="w-5 h-5" />
-                    ) : (
-                      <TrendingUp className="w-5 h-5" />
-                    )}
+                    ) : tx.type === 'mining' ? (
+  <TrendingUp className="w-5 h-5" />
+                    ) : null}
+
                   </div>
                   <div>
                     <p className="text-white font-medium capitalize">{tx.type}</p>
