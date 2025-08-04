@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GrowthSphere Investment Platform</title>
-
     <!-- Favicons and Manifest -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -15,5 +14,24 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Chatbase Chat Bubble Script -->
+    <script>
+      (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="OOx_6H6muQsSYrp37Na3j";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+    <!-- Custom CSS for Chatbase Chat Bubble -->
+    <style>
+      #OOx_6H6muQsSYrp37Na3j,
+      .chatbase-bubble-window {
+        right: 80px !important;
+        bottom: 80px !important;
+      }
+      @media (min-width: 768px) {
+        #OOx_6H6muQsSYrp37Na3j,
+        .chatbase-bubble-window {
+          right: 96px !important;
+          bottom: 96px !important;
+        }
+      }
+    </style>
   </body>
 </html>

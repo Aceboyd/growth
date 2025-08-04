@@ -12,9 +12,13 @@ const testimonials = [
   { name: 'Ahmed', country: 'EGYPT', amount: 15000 },
   { name: 'Liam', country: 'AUSTRALIA', amount: 27000 },
   { name: 'Sofia', country: 'BRAZIL', amount: 31000 },
+  { name: 'Emma', country: 'FRANCE', amount: 26000 },
+  { name: 'Hiroshi', country: 'JAPAN', amount: 34000 },
+  { name: 'Fatima', country: 'PAKISTAN', amount: 18000 },
+  { name: 'Mateo', country: 'ARGENTINA', amount: 29000 },
+  { name: 'Anika', country: 'GERMANY', amount: 32000 },
 ];
 
-// Split testimonials into two groups
 const rightTestimonials = testimonials.slice(5);
 
 const Popup = ({ position, data, delay = 0 }) => {
@@ -27,8 +31,8 @@ const Popup = ({ position, data, delay = 0 }) => {
       setTimeout(() => {
         setIndex((prev) => (prev + 1) % data.length);
         setVisible(true);
-      }, 1000); // Increased transition delay
-    }, 6000 + delay); // Increased interval with stagger delay
+      }, 1000);
+    }, 6000 + delay);
 
     return () => clearInterval(interval);
   }, [data.length, delay]);
@@ -40,7 +44,7 @@ const Popup = ({ position, data, delay = 0 }) => {
       className={`
         fixed bottom-6 z-50 transition-opacity duration-1000 
         ${visible ? 'opacity-100' : 'opacity-0'}
-        ${position === 'left' ? 'left-4 md:left-6' : 'right-4 md:right-6'}
+        ${position === 'left' ? 'left-4 md:left-6' : 'right-8 md:right-12'}
       `}
     >
       <div className="
@@ -64,7 +68,7 @@ const Popup = ({ position, data, delay = 0 }) => {
 const TestimonialPopup = () => {
   return (
     <>
-      <Popup position="right" data={rightTestimonials} delay={500} />
+      <Popup position="left" data={rightTestimonials} delay={500} />
     </>
   );
 };

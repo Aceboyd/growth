@@ -246,3 +246,17 @@ html, body {
 }
 
 
+/* Target the Chatbase chat bubble */
+#OOx_6H6muQsSYrp37Na3j,
+.chatbase-bubble-window { /* Adjust if Chatbase uses a specific class */
+  right: 80px !important; /* Move further right to avoid testimonial popup (right-4 = 16px, so 80px gives space) */
+  bottom: 80px !important; /* Move higher to avoid stacking directly on testimonial */
+}
+
+@media (min-width: 768px) {
+  #OOx_6H6muQsSYrp37Na3j,
+  .chatbase-bubble-window {
+    right: 96px !important; /* Adjust for md:right-6 (24px) of testimonial */
+    bottom: 96px !important;
+  }
+}
