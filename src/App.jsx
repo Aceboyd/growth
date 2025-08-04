@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // ✅ import toaster
 import LandingPage from './pages/LandingPage';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
@@ -11,6 +12,15 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen">
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1f2937', // Tailwind gray-800
+              color: '#fff',
+            },
+          }}
+        />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />

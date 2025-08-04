@@ -17,7 +17,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [selectedCurrency, setSelectedCurrency] = useState('BTC');
   const [amount, setAmount] = useState('');
-  const [walletAddress, setWalletAddress] = useState('');
+  const [walletAddress, setWalletAddress] = useState('Address not available');
   const [showQR, setShowQR] = useState(false);
   const [depositAddresses, setDepositAddresses] = useState({
     BTC: 'Address not available',
@@ -32,6 +32,13 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
     { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum', minDeposit: 0.01, fee: 0.005 },
     { symbol: 'USDT', name: 'Tether', network: 'TRC20', minDeposit: 10, fee: 1 },
   ];
+
+  // Network mapping to handle API response network values
+  const networkMapping = {
+    BTC: 'btc',
+    ETH: 'eth',
+    USDT: 'trc20',
+  };
 
   const fetchDepositAddresses = async () => {
     try {
@@ -102,6 +109,69 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
     }
   };
 
+  const fetchWithdrawalAddress = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found, redirecting to login');
+        setError('Please log in to continue');
+        setCurrentPage('login');
+        return;
+      }
+
+      console.log('Fetching withdrawal address from:', `${API_BASE_URL}/details/user/wallet/`);
+      const response = await axios.get(`${API_BASE_URL}/details/user/wallet/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
+      const data = response.data || {};
+      console.log('Withdrawal address API response:', data);
+
+      // Handle possible response formats
+      let address;
+      if (Array.isArray(data)) {
+        // Find the address for the selected currency's network
+        const expectedNetwork = networkMapping[selectedCurrency]?.toLowerCase();
+        const entry = data.find(item => item.network?.toLowerCase() === expectedNetwork);
+        address = entry?.address || 'Address not available';
+      } else {
+        // If response is an object, try currency keys
+        address = data[selectedCurrency.toLowerCase()] || 
+                 data[selectedCurrency] || 
+                 data.wallets?.[selectedCurrency.toLowerCase()] || 
+                 data.wallets?.[selectedCurrency] || 
+                 'Address not available';
+      }
+
+      console.log('Selected address:', address); // Debug log
+      setWalletAddress(address && typeof address === 'string' && address.trim() !== '' ? address : 'Address not available');
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch withdrawal address:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
+
+      let errorMessage = 'Unable to fetch withdrawal address. Please try again later.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Session expired. Please log in again.';
+        setCurrentPage('login');
+      } else if (err.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+
+      setError(errorMessage);
+      setWalletAddress('Address not available');
+    }
+  };
+
   useEffect(() => {
     fetchDepositAddresses();
     let pollInterval;
@@ -110,6 +180,12 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
     }
     return () => clearInterval(pollInterval);
   }, [isPolling]);
+
+  useEffect(() => {
+    if (activeTab === 'withdraw') {
+      fetchWithdrawalAddress();
+    }
+  }, [activeTab, selectedCurrency]);
 
   const selectedCrypto = cryptocurrencies.find(crypto => crypto.symbol === selectedCurrency);
 
@@ -127,7 +203,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress });
+    console.log('Transaction submitted:', { activeTab, selectedCurrency, amount, walletAddress, network: selectedCrypto.network });
 
     if (activeTab === 'withdraw') {
       try {
@@ -138,66 +214,102 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
           return;
         }
 
+        // Validate wallet address
+        if (!walletAddress || walletAddress === 'Address not available') {
+          toast.error('No valid withdrawal address available');
+          return;
+        }
+
         // Validate amount
         const parsedAmount = parseFloat(amount);
         if (isNaN(parsedAmount) || parsedAmount <= 0) {
           toast.error('Please enter a valid amount');
           return;
         }
-        if (parsedAmount < selectedCrypto.minDeposit) {
-          toast.error(`Minimum withdrawal is ${selectedCrypto.minDeposit} ${selectedCurrency}`);
-          return;
+
+        // Send withdrawal request using POST to the correct endpoint
+        console.log('Sending withdrawal request:', {
+          endpoint: `${API_BASE_URL}/details/user/wallet/`,
+          data: {
+            address: walletAddress,
+            network: selectedCrypto.network,
+          },
+        });
+        const response = await axios.post(
+          `${API_BASE_URL}/details/user/wallet/`,
+          {
+            address: walletAddress,
+            network: selectedCrypto.network,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          }
+        );
+
+        console.log('Withdrawal response:', {
+          status: response.status,
+          data: response.data,
+        });
+
+        // Handle response format (array with network and address)
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          const { address, network } = response.data[0];
+
+          // Add transaction to local state
+          const newTransaction = {
+            id: `temp-${Date.now()}`, // No ID provided in response, using timestamp
+            type: 'withdrawal',
+            currency: selectedCurrency,
+            amount: parsedAmount,
+            wallet_address: address,
+            network: network,
+            status: 'pending',
+            timestamp: new Date().toISOString(),
+          };
+
+          setTransactions((prev) => [newTransaction, ...prev]);
+
+          // Show success message
+          toast.success(`Withdrawal of ${parsedAmount} ${selectedCurrency} to ${address} (${network}) initiated successfully!`);
+
+          // Reset form
+          setAmount('');
+          setWalletAddress('Address not available');
+          // Fetch new withdrawal address after submission
+          await fetchWithdrawalAddress();
+        } else {
+          throw new Error('Invalid response format from server');
         }
-
-        // Send withdrawal request
-        // const response = await axios.post(
-        //   `${API_BASE_URL}/auth/withdraw/`,
-        //   {
-        //     currency: selectedCurrency,
-        //     amount: parsedAmount,
-        //     wallet_address: walletAddress,
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${token}`,
-        //       'Content-Type': 'application/json',
-        //     },
-        //     withCredentials: true,
-        //   }
-        // );
-
-        // Add transaction to local state
-        const newTransaction = {
-          id: `temp-${Date.now()}`, // Temporary ID until API provides one
-          type: 'withdrawal',
-          currency: selectedCurrency,
-          amount: parsedAmount,
-          wallet_address: walletAddress,
-          status: 'pending',
-          timestamp: new Date().toISOString(),
-        };
-
-        setTransactions((prev) => [newTransaction, ...prev]);
-
-        // Show success message
-        toast.success(`Withdrawal of ${parsedAmount} ${selectedCurrency} initiated successfully!`);
-
-        // Reset form
-        setAmount('');
-        setWalletAddress('');
       } catch (err) {
-        console.error('Withdrawal error:', err);
+        console.error('Withdrawal error:', {
+          message: err.message,
+          status: err.response?.status,
+          data: err.response?.data,
+        });
+
         let errorMessage = 'Failed to process withdrawal. Please try again.';
         if (err.response?.status === 401) {
           errorMessage = 'Session expired. Please log in again.';
           setCurrentPage('login');
+        } else if (err.response?.status === 404) {
+          errorMessage = 'Withdrawal endpoint not found. Please contact support.';
         } else if (err.response?.status >= 500) {
           errorMessage = 'Server error. Please try again later.';
         } else if (err.code === 'ERR_NETWORK') {
           errorMessage = 'Network error. Please check your connection.';
+        } else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
         }
+
         toast.error(errorMessage);
       }
+    } else {
+      // Deposit logic (unchanged)
+      toast.error('Deposit functionality not implemented in this version');
     }
   };
 
@@ -349,14 +461,22 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
 
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">Withdrawal Address</label>
-                <input
-                  type="text"
-                  value={walletAddress}
-                  onChange={(e) => setWalletAddress(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                  placeholder={`Enter ${selectedCurrency} address`}
-                  required
-                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={walletAddress}
+                    readOnly
+                    className="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 text-white font-mono text-xs sm:text-sm cursor-not-allowed"
+                    placeholder={`Loading ${selectedCurrency} address...`}
+                  />
+                  <button
+                    onClick={() => handleCopyAddress(walletAddress)}
+                    className="p-2 sm:p-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors"
+                    disabled={walletAddress === 'Address not available'}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -380,6 +500,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-all text-sm sm:text-base"
+                disabled={walletAddress === 'Address not available'}
               >
                 Withdraw {selectedCurrency}
               </button>

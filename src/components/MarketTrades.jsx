@@ -89,7 +89,7 @@ const MarketTrades = () => {
 
   useEffect(() => {
     fetchBinanceData(selectedCoin);
-  }, [selectedCoin, marketData]);
+  },);
 
   const toggleFavorite = (id) => {
     setFavorites([id]);
