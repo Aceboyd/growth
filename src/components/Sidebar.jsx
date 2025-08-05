@@ -12,10 +12,10 @@ import {
   User,
   Wallet,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ first_name: '', last_name: '', id: '' });
 
@@ -24,13 +24,11 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
     const fetchUser = async () => {
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        console.log('No access token, skipping user fetch');
         navigate('/signin', { replace: true });
         return;
       }
 
       try {
-        console.log('Fetching user with token:', token); // Debug token
         const res = await axios.get('https://growthsph.onrender.com/auth/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -39,8 +37,6 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
           withCredentials: true,
         });
 
-        console.log('API response:', res.data); // Debug response data
-        // Since backend returns an array, take the first user (assuming it’s the authenticated user)
         const data = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : {};
         setUser({
           first_name: data.first_name || 'Unknown',
@@ -49,10 +45,9 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
         });
       } catch (err) {
         if (err.response?.status === 401) {
-          console.error('❌ Unauthorized: Invalid or expired token', err.response.data);
           return;
         }
-        console.error('❌ Failed to fetch user:', err.message, err.response?.data);
+        console.error('❌ Failed to fetch user:', err.message);
       }
     };
 
@@ -60,29 +55,45 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
   }, [navigate]);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'kyc', label: 'KYC Verification', icon: Shield },
-    { id: 'deposit-withdraw', label: 'Deposit & Withdraw', icon: ArrowUpDown },
-    { id: 'transactions', label: 'Transaction History', icon: History },
-    { id: 'market', label: 'Market Trades', icon: TrendingUp },
-     { id: 'accounts', label: 'Accounts', icon: Wallet },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dash', exact: true }, // Added exact: true
+    { label: 'KYC Verification', icon: Shield, path: '/dash/kyc' },
+    { label: 'Deposit & Withdraw', icon: ArrowUpDown, path: '/dash/deposit-withdraw' },
+    { label: 'Transaction History', icon: History, path: '/dash/transactions' },
+    { label: 'Market Trades', icon: TrendingUp, path: '/dash/market' },
+    { label: 'Accounts', icon: Wallet, path: '/dash/accounts' },
+    { label: 'Settings', icon: Settings, path: '/dash/settings' },
   ];
 
   const handleLogout = () => {
-    console.log('Logging out, clearing localStorage');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    setCurrentPage('dashboard');
-    setSidebarOpen(false);
     navigate('/signin', { replace: true });
   };
 
-  const handleMenuClick = (itemId) => {
-    setCurrentPage(itemId);
-    setSidebarOpen(false);
-  };
+  // Shared link component
+  const renderMenuLinks = (isMobile = false) =>
+    menuItems.map((item) => {
+      const Icon = item.icon;
+      return (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          end={item.exact} // Use end prop for exact matching
+          onClick={() => isMobile && setSidebarOpen(false)}
+          className={({ isActive }) =>
+            `w-full flex items-center space-x-3 px-4 py-3 text-left rounded-md transition-colors ${
+              isActive
+                ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
+                : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+            }`
+          }
+        >
+          <Icon className="w-5 h-5" />
+          <span className="font-medium text-sm">{item.label}</span>
+        </NavLink>
+      );
+    });
 
   return (
     <>
@@ -99,27 +110,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
             </div>
           </div>
         </div>
-
-        <nav className="flex-1 py-6">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleMenuClick(item.id)}
-                className={`w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-700/50 transition-colors ${
-                  currentPage === item.id
-                    ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
+        <nav className="flex-1 py-6">{renderMenuLinks()}</nav>
         <div className="p-6 border-t border-gray-700/50">
           <button
             onClick={handleLogout}
@@ -156,25 +147,7 @@ const Sidebar = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) =
             </button>
           </div>
 
-          <nav className="flex-1 py-4">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleMenuClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${
-                    currentPage === item.id
-                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-r-2 border-blue-500 text-blue-400'
-                      : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium text-sm">{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+          <nav className="flex-1 py-4">{renderMenuLinks(true)}</nav>
 
           <div className="p-4 border-t border-gray-700/50">
             <div className="flex items-center space-x-2 mb-3">

@@ -79,7 +79,6 @@ const Dashboard = ({ setCurrentPage }) => {
           id: tx.transaction_id || 'N/A',
           type: tx.type || 'unknown',
           amount: tx.amount || 0,
-          currency: tx.currency || 'N/A',
           status: tx.status || 'unknown',
           date: tx.date || 'N/A',
           network: tx.network || 'N/A',
@@ -440,9 +439,8 @@ const Dashboard = ({ setCurrentPage }) => {
                     ) : tx.type === 'withdrawal' ? (
                       <ArrowDownLeft className="w-5 h-5" />
                     ) : tx.type === 'mining' ? (
-  <TrendingUp className="w-5 h-5" />
+                      <TrendingUp className="w-5 h-5" />
                     ) : null}
-
                   </div>
                   <div>
                     <p className="text-white font-medium capitalize">{tx.type}</p>
@@ -450,9 +448,7 @@ const Dashboard = ({ setCurrentPage }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-white font-medium">
-                    {tx.amount} {tx.currency}
-                  </p>
+                  <p className="text-white font-medium">{tx.amount}</p>
                   <span
                     className={`px-2 py-1 text-xs rounded-full ${
                       tx.status === 'completed'

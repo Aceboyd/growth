@@ -37,7 +37,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
   const networkMapping = {
     BTC: 'btc',
     ETH: 'eth',
-    USDT: 'trc20',
+    USDT: 'usdt',
   };
 
   const fetchDepositAddresses = async () => {
@@ -147,7 +147,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
                  'Address not available';
       }
 
-      console.log('Selected address:', address); // Debug log
+      console.log('Selected address:', address);
       setWalletAddress(address && typeof address === 'string' && address.trim() !== '' ? address : 'Address not available');
       setError(null);
     } catch (err) {
@@ -227,19 +227,21 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
           return;
         }
 
-        // Send withdrawal request using POST to the correct endpoint
+        // Send withdrawal request using POST to the new endpoint
         console.log('Sending withdrawal request:', {
-          endpoint: `${API_BASE_URL}/details/user/wallet/`,
+          endpoint: `${API_BASE_URL}/details/user/withdraw/`,
           data: {
+            network: networkMapping[selectedCurrency],
+            amount: parsedAmount.toFixed(8),
             address: walletAddress,
-            network: selectedCrypto.network,
           },
         });
         const response = await axios.post(
-          `${API_BASE_URL}/details/user/wallet/`,
+          `${API_BASE_URL}/details/user/withdraw/`,
           {
+            network: networkMapping[selectedCurrency],
+            amount: parsedAmount.toFixed(8),
             address: walletAddress,
-            network: selectedCrypto.network,
           },
           {
             headers: {
@@ -255,35 +257,31 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
           data: response.data,
         });
 
-        // Handle response format (array with network and address)
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          const { address, network } = response.data[0];
+        // Add transaction to local state if setTransactions is a function
+        const newTransaction = {
+          id: response.data.transaction_id || `temp-${Date.now()}`,
+          type: 'withdrawal',
+          amount: parsedAmount,
+          wallet_address: walletAddress,
+          network: networkMapping[selectedCurrency],
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+        };
 
-          // Add transaction to local state
-          const newTransaction = {
-            id: `temp-${Date.now()}`, // No ID provided in response, using timestamp
-            type: 'withdrawal',
-            currency: selectedCurrency,
-            amount: parsedAmount,
-            wallet_address: address,
-            network: network,
-            status: 'pending',
-            timestamp: new Date().toISOString(),
-          };
-
+        if (typeof setTransactions === 'function') {
           setTransactions((prev) => [newTransaction, ...prev]);
-
-          // Show success message
-          toast.success(`Withdrawal of ${parsedAmount} ${selectedCurrency} to ${address} (${network}) initiated successfully!`);
-
-          // Reset form
-          setAmount('');
-          setWalletAddress('Address not available');
-          // Fetch new withdrawal address after submission
-          await fetchWithdrawalAddress();
         } else {
-          throw new Error('Invalid response format from server');
+          console.warn('setTransactions is not a function, skipping transaction state update');
         }
+
+        // Show success message
+        toast.success(`Withdrawal of ${parsedAmount} ${selectedCurrency} to ${walletAddress} (${networkMapping[selectedCurrency]}) initiated successfully!`);
+
+        // Reset form
+        setAmount('');
+        setWalletAddress('Address not available');
+        // Fetch new withdrawal address after submission
+        await fetchWithdrawalAddress();
       } catch (err) {
         console.error('Withdrawal error:', {
           message: err.message,
@@ -291,7 +289,7 @@ const DepositWithdraw = ({ setCurrentPage, setTransactions }) => {
           data: err.response?.data,
         });
 
-        let errorMessage = 'Failed to process withdrawal. Please try again.';
+        let errorMessage = 'Withdrawal request failed. Please try again or contact support.';
         if (err.response?.status === 401) {
           errorMessage = 'Session expired. Please log in again.';
           setCurrentPage('login');

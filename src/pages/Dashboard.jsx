@@ -1,8 +1,9 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
-// Lazy-load components
+// Lazy-loaded pages
 const DashboardContent = lazy(() => import('../components/Dash'));
 const KYCVerification = lazy(() => import('../components/KYCVerification'));
 const DepositWithdraw = lazy(() => import('../components/DepositWithdraw'));
@@ -11,8 +12,7 @@ const MarketTrades = lazy(() => import('../components/MarketTrades'));
 const UserSettings = lazy(() => import('../components/UserSettings'));
 const Accounts = lazy(() => import('../components/Accounts'));
 
-function Dash() {
-  const [currentPage, setCurrentPage] = useState('dashboard'); // Updated default
+function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [user, setUser] = useState({
@@ -20,48 +20,48 @@ function Dash() {
     name: 'Alex Johnson',
     email: 'alex.johnson@email.com',
     kycStatus: 'unverified',
-    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=1',
+    avatar:
+      'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=1',
   });
 
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <DashboardContent user={user} setCurrentPage={setCurrentPage} />;
-      case 'kyc':
-        return <KYCVerification user={user} setUser={setUser} />;
-      case 'deposit-withdraw':
-        return <DepositWithdraw />;
-      case 'transactions':
-        return <TransactionHistory />;
-      case 'market':
-        return <MarketTrades />;
-      case 'accounts':
-        return <Accounts />;
-      case 'settings':
-        return <UserSettings user={user} setUser={setUser} />;
-      default:
-        return <DashboardContent user={user} setCurrentPage={setCurrentPage} />;
-    }
-  };
-
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 overflow-hidden">
-      <Sidebar
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        user={user}
-        setUser={setUser}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 overflow-hidden relative">
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full z-50 transition-transform transform lg:relative ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <Sidebar
+          user={user}
+          setUser={setUser}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
+      </div>
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header user={user} setSidebarOpen={setSidebarOpen} />
         <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
           <Suspense fallback={<div className="text-white">Loading...</div>}>
-            {renderCurrentPage()}
+            <Routes>
+              <Route index element={<DashboardContent user={user} />} />
+              <Route path="kyc" element={<KYCVerification user={user} setUser={setUser} />} />
+              <Route path="deposit-withdraw" element={<DepositWithdraw />} />
+              <Route path="transactions" element={<TransactionHistory />} />
+              <Route path="market" element={<MarketTrades />} />
+              <Route path="accounts" element={<Accounts />} />
+              <Route path="settings" element={<UserSettings user={user} setUser={setUser} />} />
+
+              {/* Catch-all redirect to dashboard if unknown path */}
+              <Route path="*" element={<Navigate to="/dash" replace />} />
+            </Routes>
           </Suspense>
         </main>
       </div>
+
+      {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -72,4 +72,4 @@ function Dash() {
   );
 }
 
-export default Dash;
+export default DashboardLayout;

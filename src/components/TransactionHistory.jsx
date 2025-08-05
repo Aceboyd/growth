@@ -55,7 +55,6 @@ const TransactionHistory = ({ setCurrentPage }) => {
           id: tx.transaction_id || 'N/A',
           type: tx.type || 'unknown',
           amount: tx.amount || 0,
-          currency: tx.currency || 'N/A',
           status: tx.status || 'unknown',
           date: tx.date || 'N/A',
           network: tx.network || 'N/A',
@@ -123,9 +122,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
   };
 
   const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.currency.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || transaction.type === filterType;
     const matchesStatus = filterStatus === 'all' || transaction.status === filterStatus;
     
@@ -143,7 +140,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
         <div className="flex items-center justify-between flex-col sm:flex-row space-y-3 sm:space-y-0">
           <div className="text-center sm:text-left">
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Transaction History</h2>
-            <p className="text-gray-300 text-sm sm:text-base">View and manage all your cryptocurrency transactions</p>
+            <p className="text-gray-300 text-sm sm:text-base">View and manage all your transactions</p>
           </div>
           <button
             onClick={exportTransactions}
@@ -163,7 +160,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by ID, currency..."
+              placeholder="Search by ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-700/50 border border-gray-600 rounded-lg pl-8 sm:pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -179,7 +176,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
             <option value="all">All Types</option>
             <option value="deposit">Deposits</option>
             <option value="withdrawal">Withdrawals</option>
-            <option value="mining">mining</option>
+            <option value="mining">Mining</option>
           </select>
 
           {/* Status Filter */}
@@ -240,11 +237,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400 text-sm">Amount:</span>
-                    <span className="text-white font-medium text-sm">{transaction.amount} {transaction.currency}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400 text-sm">Currency:</span>
-                    <span className="text-white font-medium text-sm">{transaction.currency}</span>
+                    <span className="text-white font-medium text-sm">{transaction.amount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400 text-sm">Date:</span>
@@ -268,7 +261,6 @@ const TransactionHistory = ({ setCurrentPage }) => {
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Transaction ID</th>
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Type</th>
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Amount</th>
-                    <th className="text-left text-gray-300 font-medium p-4 text-sm">Currency</th>
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Status</th>
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Date</th>
                     <th className="text-left text-gray-300 font-medium p-4 text-sm">Network</th>
@@ -289,12 +281,7 @@ const TransactionHistory = ({ setCurrentPage }) => {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="text-white font-medium text-sm">
-                          {transaction.amount} {transaction.currency}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-white font-medium text-sm">{transaction.currency}</div>
+                        <div className="text-white font-medium text-sm">{transaction.amount}</div>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center space-x-2">
@@ -351,4 +338,5 @@ const TransactionHistory = ({ setCurrentPage }) => {
     </div>
   );
 };
+
 export default TransactionHistory;
