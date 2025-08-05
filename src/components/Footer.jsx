@@ -67,6 +67,10 @@ const Footer = () => {
               <span className="mb-2 font-semibold">Contact</span>
               <span>info@growthsph.com</span>
             </div>
+            <div className="text-white/80 text-sm flex flex-col items-start">
+              <span className="mb-2 font-semibold">Address</span>
+              <span>1240 12th Ave, Seattle, WA 98122</span>
+            </div>
           </div>
         </div>
       </footer>
