@@ -11,8 +11,10 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = ({ setCurrentPage }) => {
+  const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(true);
   const [coins, setCoins] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -389,21 +391,21 @@ const Dashboard = ({ setCurrentPage }) => {
           <h3 className="text-xl font-bold text-white mb-5">Quick Actions</h3>
           <div className="space-y-4">
             <button
-              onClick={() => setCurrentPage('deposit-withdraw')}
+              onClick={() => navigate('/dash/deposit-withdraw')} // Navigates to /dash/deposit-withdraw
               className="w-full flex items-center space-x-3 p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition"
             >
               <ArrowUpRight className="w-5 h-5 text-white" />
               <span className="text-white font-medium text-base">Deposit</span>
             </button>
             <button
-              onClick={() => setCurrentPage('deposit-withdraw')}
+              onClick={() => navigate('/dash/deposit-withdraw')} // Navigates to /dash/deposit-withdraw
               className="w-full flex items-center space-x-3 p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition"
             >
               <ArrowDownLeft className="w-5 h-5 text-white" />
               <span className="text-white font-medium text-base">Withdraw</span>
             </button>
             <button
-              onClick={() => setCurrentPage('market')}
+              onClick={() => navigate('/dash/market')} // Navigates to /dash/market
               className="w-full flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition"
             >
               <TrendingUp className="w-5 h-5 text-white" />
