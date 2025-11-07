@@ -16,7 +16,7 @@ const SignIn = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -53,21 +53,19 @@ const SignIn = () => {
       localStorage.setItem('accessToken', access);
       localStorage.setItem('refreshToken', refresh);
 
-      // Fetch user profile with access token
-      const userRes = await axios.get(
-        'https://growthsph.onrender.com/auth/users/',
-        {
-          headers: {
-            Authorization: `Bearer ${access}`
-          }
-        }
-      );
+      // 🚫 Commented out verification/profile fetching
+      // const userRes = await axios.get(
+      //   'https://growthsph.onrender.com/auth/users/',
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${access}`
+      //     }
+      //   }
+      // );
+      // localStorage.setItem('user', JSON.stringify(userRes.data));
 
-      // Store user info if needed
-      localStorage.setItem('user', JSON.stringify(userRes.data));
-
-      console.log('Login successful');
-      navigate('/dash');
+      console.log('Login successful ✅');
+      navigate('/dash'); // 👈 Directly go to dashboard
 
     } catch (err) {
       console.error('Login error:', err);
@@ -89,15 +87,22 @@ const SignIn = () => {
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center text-emerald-600 hover:text-emerald-700 mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center text-emerald-600 hover:text-emerald-700 mb-6"
+          >
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Home
           </Link>
           <div className="flex justify-center mb-4">
             <TrendingUp className="h-12 w-12 text-emerald-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your GrowthSphere account</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-gray-600">
+            Sign in to your GrowthSphere account
+          </p>
         </div>
 
         <div className="bg-gray-50 rounded-xl p-8 border border-gray-200 shadow-lg">
@@ -106,7 +111,9 @@ const SignIn = () => {
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
               <input
                 type="email"
                 name="email"
@@ -119,7 +126,9 @@ const SignIn = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -135,7 +144,11 @@ const SignIn = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -169,7 +182,10 @@ const SignIn = () => {
           <div className="text-center mt-6">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-emerald-600 hover:text-emerald-700 font-medium">
+              <Link
+                to="/signup"
+                className="text-emerald-600 hover:text-emerald-700 font-medium"
+              >
                 Sign Up
               </Link>
             </p>

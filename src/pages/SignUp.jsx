@@ -135,8 +135,10 @@ const SignUp = () => {
     try {
       await axios.post('https://growthsph.onrender.com/auth/users/', payload);
       setErrorMessage('');
-      // Redirect to verify email prompt page with email in state
-      navigate('/verify-email', { state: { email: formData.email } });
+      // 🚫 Commented out email verification redirect
+      // navigate('/verify-email', { state: { email: formData.email } });
+      navigate('/signin');
+      alert('✅ Registration successful! You can now sign in.');
     } catch (error) {
       console.error('API Error:', error.response?.data, error.response?.status);
       const data = error.response?.data;
@@ -170,6 +172,7 @@ const SignUp = () => {
             <div className="text-red-600 text-sm mb-4">{errorMessage}</div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Names */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -197,6 +200,7 @@ const SignUp = () => {
               </div>
             </div>
 
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
@@ -211,6 +215,7 @@ const SignUp = () => {
               />
             </div>
 
+            {/* Phone */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
               <input
@@ -225,6 +230,7 @@ const SignUp = () => {
               />
             </div>
 
+            {/* Country */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
               <select
@@ -244,6 +250,7 @@ const SignUp = () => {
               </select>
             </div>
 
+            {/* Password */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <input
@@ -266,6 +273,7 @@ const SignUp = () => {
               </button>
             </div>
 
+            {/* Confirm Password */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
               <input
@@ -288,6 +296,7 @@ const SignUp = () => {
               </button>
             </div>
 
+            {/* Investment Goal */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Investment Goal</label>
               <select
@@ -307,6 +316,7 @@ const SignUp = () => {
               </select>
             </div>
 
+            {/* Risk */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Risk Tolerance</label>
               <select
@@ -324,6 +334,7 @@ const SignUp = () => {
               </select>
             </div>
 
+            {/* Account Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
               <select
@@ -341,6 +352,7 @@ const SignUp = () => {
               </select>
             </div>
 
+            {/* Trades */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Choose a Trade</label>
               <select
@@ -361,6 +373,7 @@ const SignUp = () => {
               </select>
             </div>
 
+            {/* Terms */}
             <div className="flex items-start">
               <input
                 type="checkbox"
@@ -384,6 +397,7 @@ const SignUp = () => {
               </label>
             </div>
 
+            {/* Button */}
             <button
               type="submit"
               disabled={isLoading}
